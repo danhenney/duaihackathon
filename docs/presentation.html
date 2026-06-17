@@ -3,459 +3,514 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>사라했제 | 발표자료</title>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap">
     <style>
       :root {
-        --bg: #f7f3ea;
-        --paper: #fffdf8;
-        --ink: #11110f;
-        --muted: #706b61;
-        --line: #ded6c8;
-        --green: #2f8a4c;
+        --bg: #f8f7f3;
+        --paper: #fffef9;
+        --ink: #0f172a;
+        --muted: #6f6a61;
+        --line: #ded8ca;
+        --green: #22c55e;
+        --deep-green: #267a43;
         --red: #c94c4c;
-        --blue: #365fe8;
-        --yellow: #f5c84b;
+        --blue: #3d63ff;
+        --shadow: 0 28px 90px rgba(15, 23, 42, 0.14);
       }
 
       * { box-sizing: border-box; }
-
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-      }
+      html, body { margin: 0; min-height: 100%; }
 
       body {
         color: var(--ink);
-        font-family: Pretendard, "Pretendard Variable", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Nanum Gothic", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
         background:
           linear-gradient(var(--line) 1px, transparent 1px),
           linear-gradient(90deg, var(--line) 1px, transparent 1px),
-          radial-gradient(circle at 80% 16%, rgba(54, 95, 232, 0.12), transparent 30%),
-          radial-gradient(circle at 14% 78%, rgba(47, 138, 76, 0.13), transparent 30%),
+          radial-gradient(circle at 85% 12%, rgba(34, 197, 94, 0.14), transparent 28%),
+          radial-gradient(circle at 10% 82%, rgba(61, 99, 255, 0.12), transparent 30%),
           var(--bg);
-        background-size: 52px 52px, 52px 52px, auto, auto, auto;
+        background-size: 54px 54px, 54px 54px, auto, auto, auto;
       }
 
       .deck {
-        width: min(1160px, calc(100vw - 56px));
-        min-height: min(700px, calc(100vh - 56px));
+        width: min(1180px, calc(100vw - 48px));
+        min-height: min(720px, calc(100vh - 48px));
         margin: 24px auto;
-        position: relative;
         overflow: hidden;
-        border: 1px solid rgba(17, 17, 15, 0.14);
-        border-radius: 30px;
-        background: rgba(255, 253, 248, 0.94);
-        box-shadow: 0 28px 90px rgba(17, 17, 15, 0.14);
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 28px;
+        background: rgba(255, 254, 249, 0.95);
+        box-shadow: var(--shadow);
       }
 
       .slide {
-        min-height: min(700px, calc(100vh - 56px));
+        min-height: min(720px, calc(100vh - 48px));
         display: none;
         grid-template-rows: auto 1fr auto;
-        gap: 32px;
-        padding: 42px 56px 34px;
+        gap: 26px;
+        padding: 38px 54px 30px;
       }
 
-      .slide.active {
-        display: grid;
-      }
+      .slide.active { display: grid; }
 
-      header {
+      header, footer {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: flex-start;
-        gap: 24px;
+        gap: 20px;
       }
 
       .brand {
         display: flex;
         align-items: center;
         gap: 12px;
-        font-weight: 950;
-        font-size: 20px;
+        font-weight: 800;
       }
 
-      .logo {
+      .mark {
         display: grid;
         place-items: center;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        color: #fff;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
         background: var(--ink);
+        color: white;
+        font-weight: 800;
       }
 
       .page {
         color: var(--muted);
         font-size: 14px;
-        font-weight: 900;
+        font-weight: 800;
         letter-spacing: 0.08em;
       }
 
       .content {
         display: grid;
         align-content: center;
-        gap: 28px;
+        gap: 24px;
       }
 
       .two {
-        grid-template-columns: 1.08fr 0.92fr;
+        grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
         align-items: center;
         gap: 34px;
       }
 
-      h1,
-      h2 {
-        margin: 0;
-        letter-spacing: 0;
-        line-height: 0.98;
-      }
+      h1, h2, h3, p { margin: 0; }
 
       h1 {
-        max-width: 980px;
-        font-size: clamp(44px, 6.2vw, 82px);
+        max-width: 900px;
+        font-size: clamp(42px, 5.6vw, 76px);
+        line-height: 1.03;
       }
 
       h2 {
-        max-width: 920px;
-        font-size: clamp(34px, 4.6vw, 62px);
+        max-width: 930px;
+        font-size: clamp(34px, 4.2vw, 58px);
+        line-height: 1.12;
+      }
+
+      h3 {
+        font-size: 22px;
+        line-height: 1.3;
       }
 
       p {
-        margin: 0;
-        max-width: 880px;
         color: var(--muted);
-        font-size: 21px;
-        font-weight: 650;
+        font-size: 19px;
+        font-weight: 700;
         line-height: 1.55;
       }
 
       .eyebrow {
         color: var(--blue);
-        font-size: 19px;
-        font-weight: 950;
-      }
-
-      .panel {
-        border: 1px solid rgba(17, 17, 15, 0.13);
-        border-radius: 24px;
-        background: rgba(255, 255, 255, 0.66);
-        padding: 26px;
-      }
-
-      .quote {
-        font-size: clamp(32px, 4.1vw, 54px);
-        font-weight: 950;
-        line-height: 1.08;
-      }
-
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-      }
-
-      .card {
-        min-height: 160px;
-        border: 1px solid rgba(17, 17, 15, 0.12);
-        border-radius: 22px;
-        background: rgba(255, 255, 255, 0.68);
-        padding: 24px;
-      }
-
-      .card span {
-        display: block;
-        color: var(--muted);
-        font-size: 15px;
-        font-weight: 900;
-      }
-
-      .card strong {
-        display: block;
-        margin-top: 14px;
-        font-size: 32px;
-        line-height: 1;
-      }
-
-      .card p {
-        margin-top: 14px;
         font-size: 17px;
-        line-height: 1.42;
+        font-weight: 800;
       }
 
-      .mock {
-        border: 10px solid var(--ink);
-        border-radius: 34px;
-        background: #fbf8f0;
-        padding: 20px;
-        box-shadow: 0 26px 70px rgba(17, 17, 15, 0.2);
+      .lead {
+        max-width: 820px;
+        font-size: 21px;
       }
 
-      .search {
-        height: 54px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        padding: 0 18px;
-        color: var(--muted);
-        font-weight: 850;
+      .quote-box,
+      .screen,
+      .pipe,
+      .claim-card,
+      .metric {
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
       }
 
+      .quote-box {
+        border-radius: 22px;
+        padding: 30px;
+        font-size: clamp(30px, 3.6vw, 48px);
+        font-weight: 800;
+        line-height: 1.15;
+      }
+
+      .quote-box span { color: var(--red); }
+
+      .problem-stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .claim-card,
       .row {
         display: grid;
-        grid-template-columns: 48px 1fr auto;
-        align-items: center;
+        grid-template-columns: 46px minmax(0, 1fr) auto;
         gap: 12px;
-        padding: 16px 0;
-        border-bottom: 1px solid var(--line);
+        align-items: center;
+        padding: 14px;
+        border-radius: 18px;
       }
 
       .avatar {
         display: grid;
         place-items: center;
-        width: 48px;
-        height: 48px;
+        width: 46px;
+        height: 46px;
         border-radius: 50%;
-        color: #fff;
         background: var(--ink);
-        font-weight: 950;
+        color: white;
+        font-weight: 800;
       }
 
-      .row b {
-        display: block;
-        font-size: 17px;
-      }
-
-      .row small {
-        display: block;
-        color: var(--muted);
-        font-weight: 700;
-        margin-top: 4px;
-      }
-
-      .up { color: var(--green); }
+      b { display: block; font-size: 17px; }
+      small { display: block; margin-top: 4px; color: var(--muted); font-weight: 700; }
+      .up { color: var(--deep-green); }
       .down { color: var(--red); }
 
-      .steps {
-        display: grid;
-        gap: 14px;
+      .screen {
+        overflow: hidden;
+        border-radius: 22px;
+        background: #fbfaf5;
       }
 
-      .step {
-        display: grid;
-        grid-template-columns: 96px 1fr;
-        gap: 18px;
-        align-items: start;
-        padding: 20px;
-        border: 1px solid rgba(17, 17, 15, 0.12);
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.65);
-      }
-
-      .step b {
-        color: var(--blue);
-        font-size: 18px;
-      }
-
-      .step p {
-        font-size: 19px;
-      }
-
-      .checklist {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-
-      .check {
-        padding: 22px;
-        border: 1px solid rgba(17, 17, 15, 0.12);
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.65);
-      }
-
-      .check b {
-        display: block;
-        font-size: 21px;
-        margin-bottom: 10px;
-      }
-
-      .check p {
-        font-size: 17px;
-      }
-
-      footer {
+      .screen-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 254, 249, 0.86);
+        font-weight: 800;
+      }
+
+      .screen-body { padding: 18px; }
+
+      .badge {
+        display: inline-flex;
+        border-radius: 999px;
+        background: rgba(34, 197, 94, 0.14);
+        color: var(--deep-green);
+        padding: 4px 8px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .search-bar {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: center;
+        height: 58px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: white;
         color: var(--muted);
-        font-size: 14px;
-        font-weight: 850;
+        font-weight: 800;
+      }
+
+      .search-bar button,
+      .chip button {
+        border: 0;
+        border-radius: 999px;
+        background: var(--ink);
+        color: white;
+        padding: 12px 20px;
+        font-weight: 800;
+      }
+
+      .chips {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .chip span {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .chip button {
+        margin: 0 4px 6px 0;
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+        padding: 8px 11px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .metric {
+        padding: 13px;
+        border-radius: 16px;
+        background: white;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 23px;
+      }
+
+      .timeline {
+        height: 180px;
+        position: relative;
+        margin-top: 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background:
+          linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px),
+          #111827;
+        background-size: 38px 38px;
+        overflow: hidden;
+      }
+
+      .line {
+        position: absolute;
+        inset: 54px 20px 35px;
+        border-bottom: 5px solid var(--green);
+        border-radius: 50%;
+        transform: skewX(-14deg) rotate(-5deg);
+      }
+
+      .marker {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 3px solid var(--green);
+        border-radius: 50%;
+        background: white;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .marker.one { left: 14%; top: 58%; }
+      .marker.two { left: 48%; top: 42%; }
+      .marker.three { right: 12%; top: 25%; }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .pipe {
+        min-height: 160px;
+        padding: 18px;
+        border-radius: 20px;
+        background: white;
+      }
+
+      .pipe span {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        margin-bottom: 14px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: white;
+        font-weight: 800;
+      }
+
+      .pipe p { margin-top: 9px; font-size: 16px; }
+
+      .closing {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 24px;
+      }
+
+      footer {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
       }
 
       .progress {
-        width: 260px;
+        width: 240px;
         height: 8px;
         border-radius: 999px;
         overflow: hidden;
-        background: rgba(17, 17, 15, 0.12);
+        background: rgba(15, 23, 42, 0.12);
       }
 
-      .bar {
-        width: 0%;
-        height: 100%;
-        border-radius: inherit;
-        background: var(--ink);
-        transition: width 180ms ease;
-      }
+      .bar { width: 0%; height: 100%; background: var(--ink); }
+      .controls { display: flex; gap: 8px; }
 
-      button {
-        border: 1px solid rgba(17, 17, 15, 0.14);
+      .nav-btn {
+        border: 1px solid var(--line);
         border-radius: 999px;
-        background: #fff;
+        background: white;
         color: var(--ink);
+        padding: 9px 13px;
         font: inherit;
-        font-weight: 900;
-        padding: 10px 14px;
+        font-weight: 800;
         cursor: pointer;
       }
 
-      .controls {
-        display: flex;
-        gap: 8px;
-      }
-
       @media (max-width: 860px) {
-        .deck {
-          width: 100vw;
-          min-height: 100vh;
-          margin: 0;
-          border-radius: 0;
-        }
-
-        .slide {
-          min-height: 100vh;
-          padding: 28px 24px 24px;
-        }
-
-        .two,
-        .cards,
-        .checklist {
-          grid-template-columns: 1fr;
-        }
-
-        .mock {
-          display: none;
-        }
-
-        p {
-          font-size: 19px;
-        }
+        .deck { width: 100vw; min-height: 100vh; margin: 0; border-radius: 0; }
+        .slide { min-height: 100vh; padding: 26px 22px 24px; }
+        .two, .closing, .pipeline, .chips { grid-template-columns: 1fr; }
+        h1 { font-size: 44px; }
+        h2 { font-size: 34px; }
+        p { font-size: 17px; }
       }
     </style>
   </head>
   <body>
     <main class="deck">
       <section class="slide active">
-        <header>
-          <div class="brand"><span class="logo">사</span>사라했제</div>
-          <div class="page">01 / 05</div>
-        </header>
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">01 / 06</div></header>
         <div class="content two">
           <div>
-            <p class="eyebrow">왜 이걸 만들게 되었을까?</p>
-            <h1>인플루언서들은 진짜 투자를 잘할까?</h1>
-            <p>말은 빠르게 퍼지지만 성과는 잘 남지 않습니다. 그래서 공개 의견이 나온 시점부터 실제 수익률을 추적하는 서비스를 만들었습니다.</p>
+            <p class="eyebrow">문제</p>
+            <h1>투자는 본인의 선택입니다.</h1>
+            <p class="lead">그럼에도 선택에 도움을 주는 타인들은 항상 많습니다. 인플루언서, 유튜버, 방송인, 유명 투자자, 그리고 주변의 “이거 사라”는 말까지요.</p>
           </div>
-          <div class="panel quote">“내가 사라했제”<br><span class="down">그런데 진짜 올랐나?</span></div>
+          <div class="quote-box">“내가 사라했제”<br><span>근데 진짜 맞았나?</span></div>
         </div>
-        <footer><span>문제의식</span><div class="progress"><div class="bar"></div></div></footer>
+        <footer><span>투자 판단 주변에는 늘 누군가의 말이 있다</span><div class="progress"><div class="bar"></div></div></footer>
       </section>
 
       <section class="slide">
-        <header>
-          <div class="brand"><span class="logo">사</span>사라했제</div>
-          <div class="page">02 / 05</div>
-        </header>
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">02 / 06</div></header>
         <div class="content two">
           <div>
-            <p class="eyebrow">어떻게 만들었을까?</p>
-            <h2>코덱스로 기획부터 개발까지 빠르게 밀었습니다.</h2>
-            <p>초기 아이디어를 기능 구조로 정리하고, 화면 설계, 데이터 모델, 차트, 검색, DB 연결, Vercel 배포까지 한 흐름으로 구현했습니다.</p>
+            <p class="eyebrow">문제</p>
+            <h2>말은 많은데, 실력은 검증되지 않습니다.</h2>
+            <p class="lead">실제로는 실력 없는 사람이 태반입니다. 문제는 일반 투자자가 실력자와 비실력자를 구분하기 어렵다는 점입니다. 성공한 말은 남고, 실패한 말은 쉽게 잊힙니다.</p>
           </div>
-          <div class="steps">
-            <div class="step"><b>기획</b><p>검색, 피드, 랭킹, 마이 정보 탭으로 UX를 정리했습니다.</p></div>
-            <div class="step"><b>개발</b><p>HTML, CSS, JS, Node API로 실제 동작하는 데모를 만들었습니다.</p></div>
-            <div class="step"><b>배포</b><p>GitHub와 Vercel을 연결해 웹에서 바로 볼 수 있게 만들었습니다.</p></div>
+          <div class="problem-stack">
+            <div class="claim-card"><div class="avatar">A</div><div><b>“HYPE는 계속 간다”</b><small>2026-05-24 · X</small></div><strong class="up">+133%</strong></div>
+            <div class="claim-card"><div class="avatar">J</div><div><b>“Tesla buy”</b><small>2026-05-14 · CNBC</small></div><strong class="down">-44%</strong></div>
+            <div class="claim-card"><div class="avatar">전</div><div><b>“SK하이닉스 장기 보유”</b><small>2011-01-01 · 기사</small></div><strong class="up">+11810%</strong></div>
           </div>
         </div>
-        <footer><span>Codex-assisted build</span><div class="progress"><div class="bar"></div></div></footer>
+        <footer><span>추천은 퍼지지만 추천 이후 성과는 잘 남지 않는다</span><div class="progress"><div class="bar"></div></div></footer>
       </section>
 
       <section class="slide">
-        <header>
-          <div class="brand"><span class="logo">사</span>사라했제</div>
-          <div class="page">03 / 05</div>
-        </header>
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">03 / 06</div></header>
+        <div class="content two">
+          <div>
+            <p class="eyebrow">개선안</p>
+            <h2>그래서 사라했제가 등장합니다.</h2>
+            <p class="lead">공개된 정보를 최대한 끌고 와서, 누가 실제로 투자를 잘하는지 확인합니다. 인물을 검색하면 그 사람의 성과를 보고, 종목을 검색하면 누가 가장 먼저 알아봤는지 비교합니다.</p>
+          </div>
+          <div class="screen">
+            <div class="screen-head"><span>검색 화면</span><span class="badge">저장된 DB 기준</span></div>
+            <div class="screen-body">
+              <div class="search-bar"><span>인물 또는 종목 검색</span><button>검색</button></div>
+              <div class="chips">
+                <div class="chip"><span>인물 검색 순위</span><button>전원주</button><button>삼천당제약 할머니</button><button>전인구</button></div>
+                <div class="chip"><span>종목 검색 순위</span><button>하이닉스</button><button>삼성전자</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer><span>그 말, 지금 얼마나 맞았을까?</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">04 / 06</div></header>
+        <div class="content two">
+          <div>
+            <p class="eyebrow">핵심 화면</p>
+            <h2>사람 기준으로도, 종목 기준으로도 봅니다.</h2>
+            <p class="lead">인물 상세에서는 공개 긍정 의견과 평균 성과를 확인합니다. 종목 상세에서는 가격 흐름 위에 의견 시점을 올려 누가 빨랐는지 바로 봅니다.</p>
+          </div>
+          <div class="screen">
+            <div class="screen-head"><span>종목 상세 · SK하이닉스</span><span class="badge">차트 마커</span></div>
+            <div class="screen-body">
+              <div class="metric-grid">
+                <div class="metric"><span>가장 좋았던 사람</span><strong>전원주</strong></div>
+                <div class="metric"><span>성과</span><strong class="up">+11810%</strong></div>
+                <div class="metric"><span>처음 의견</span><strong>2011</strong></div>
+              </div>
+              <div class="timeline"><div class="line"></div><div class="marker one">전</div><div class="marker two">J</div><div class="marker three">C</div></div>
+            </div>
+          </div>
+        </div>
+        <footer><span>인물 상세 · 종목 상세 · 랭킹보드</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">05 / 06</div></header>
         <div class="content">
-          <p class="eyebrow">뭘 중요하게 생각했을까?</p>
-          <h2>데이터 정합성과 실제 워킹을 제일 중요하게 봤습니다.</h2>
-          <div class="checklist">
-            <div class="check"><b>출처 있는 의견만</b><p>X, 유튜브, 기사 등 원문을 확인할 수 있는 공개 의견을 중심으로 넣었습니다.</p></div>
-            <div class="check"><b>뉴스 채널 제외</b><p>뉴스 계정은 인플루언서 랭킹 대상이 아니어서 제거했습니다.</p></div>
-            <div class="check"><b>종목 검색 가능</b><p>한국, 미국, 코인 주요 종목은 의견이 없어도 추적 유니버스로 검색됩니다.</p></div>
-            <div class="check"><b>차트와 수익률</b><p>종목 상세에서 가격 흐름과 의견 시점을 함께 볼 수 있게 만들었습니다.</p></div>
+          <p class="eyebrow">방법론</p>
+          <h2>X, YouTube, Telegram, Web Search에서 원문과 시점을 확보합니다.</h2>
+          <div class="pipeline">
+            <div class="pipe"><span>1</span><h3>원문 수집</h3><p>X, 유튜브, 텔레그램, 기사, 웹 검색에서 공개 발언과 URL을 모읍니다.</p></div>
+            <div class="pipe"><span>2</span><h3>종목 매칭</h3><p>티커, 종목명, 자산명이 직접 등장하는 발언을 우선 매칭합니다.</p></div>
+            <div class="pipe"><span>3</span><h3>의견 분류</h3><p>긍정 의견 강도를 상·중·하로 나누고 원문 근거를 남깁니다.</p></div>
+            <div class="pipe"><span>4</span><h3>성과 계산</h3><p>발언 시점 가격부터 현재 가격까지의 단순 수익률을 계산합니다.</p></div>
           </div>
+          <p>현재 버전은 중앙 관리형 베타입니다. DB에 기록된 인물과 종목만 검색되며, 라이브 서치는 데이터가 더 쌓인 뒤 도입합니다.</p>
         </div>
-        <footer><span>데모보다 중요한 것은 신뢰</span><div class="progress"><div class="bar"></div></div></footer>
+        <footer><span>원문 URL · 날짜 · 발언 · 가격을 함께 저장</span><div class="progress"><div class="bar"></div></div></footer>
       </section>
 
       <section class="slide">
-        <header>
-          <div class="brand"><span class="logo">사</span>사라했제</div>
-          <div class="page">04 / 05</div>
-        </header>
-        <div class="content two">
+        <header><div class="brand"><span class="mark">사</span>사라했제</div><div class="page">06 / 06</div></header>
+        <div class="content closing">
           <div>
-            <p class="eyebrow">실제로 어떻게 보일까?</p>
-            <h2>누가 언제 사라했는지 한 화면에서 비교합니다.</h2>
-            <p>예를 들어 Michael Saylor는 BTC 긍정 의견이 한 건으로 끝나면 안 됩니다. 반복 발언과 매수 공개를 최신순으로 쌓아야 실제 인물 성과가 보입니다.</p>
+            <p class="eyebrow">확장</p>
+            <h2>DB가 쌓일수록 말의 실력 데이터베이스가 됩니다.</h2>
+            <p class="lead">누가 특정 섹터를 잘 보는지, 누가 손실 의견이 많은지, 누가 특정 종목을 가장 빨리 봤는지 비교할 수 있습니다. 재미로 시작하지만 리서치 출발점이 됩니다.</p>
           </div>
-          <div class="mock">
-            <div class="search">⌕ Michael Saylor</div>
-            <div class="row"><div class="avatar">MS</div><div><b>BTC 디지털 자본</b><small>2026-06-16 · 원문 확인</small></div><strong class="down">-2.09%</strong></div>
-            <div class="row"><div class="avatar">MS</div><div><b>1,587 BTC 추가 매수</b><small>2026-06-15 · 원문 확인</small></div><strong class="up">+1.99%</strong></div>
-            <div class="row"><div class="avatar">전</div><div><b>SK하이닉스 장기 보유</b><small>2011-01-01 · 기사 확인</small></div><strong class="up">+11,810%</strong></div>
+          <div class="screen">
+            <div class="screen-head"><span>랭킹보드 + 피드</span><span class="badge">성과 누적</span></div>
+            <div class="screen-body">
+              <div class="row"><div class="avatar">1</div><div><b>전원주</b><small>SK하이닉스 장기 보유</small></div><strong class="up">+11810%</strong></div>
+              <div class="row"><div class="avatar">2</div><div><b>Arthur Hayes</b><small>HYPE, ZEC, NEAR</small></div><strong class="up">+133%</strong></div>
+              <div class="row"><div class="avatar">3</div><div><b>Serenity</b><small>AAOI high conviction long</small></div><strong class="up">+1.3%</strong></div>
+            </div>
           </div>
         </div>
-        <footer><span>인물 상세 · 종목 상세 · 랭킹</span><div class="progress"><div class="bar"></div></div></footer>
-      </section>
-
-      <section class="slide">
-        <header>
-          <div class="brand"><span class="logo">사</span>사라했제</div>
-          <div class="page">05 / 05</div>
-        </header>
-        <div class="content">
-          <p class="eyebrow">앞으로는 뭘 할까?</p>
-          <h2>데이터베이스를 쌓고 실제 투자 판단에 쓰는 도구로 확장합니다.</h2>
-          <div class="cards">
-            <div class="card"><span>데이터 축적</span><strong>DB</strong><p>검증된 원문 URL과 의견 시점을 계속 저장합니다.</p></div>
-            <div class="card"><span>성과 분석</span><strong>랭킹</strong><p>인물별 적중률, 수익률, 손실 의견까지 비교합니다.</p></div>
-            <div class="card"><span>투자 활용</span><strong>시그널</strong><p>누가 먼저 봤는지 확인해 리서치 출발점으로 씁니다.</p></div>
-          </div>
-          <div class="panel quote">말의 값어치를<br><span class="up">수익률로 남기는 서비스</span></div>
-        </div>
-        <footer>
-          <span>사라했제</span>
-          <div class="controls"><button id="prev" type="button">이전</button><button id="next" type="button">다음</button></div>
-        </footer>
+        <footer><span>사라했제 · 말의 값어치를 수익률로 남기는 서비스</span><div class="controls"><button class="nav-btn" id="prev" type="button">이전</button><button class="nav-btn" id="next" type="button">다음</button></div></footer>
       </section>
     </main>
 
@@ -463,18 +518,15 @@
       const slides = [...document.querySelectorAll(".slide")];
       const bars = [...document.querySelectorAll(".bar")];
       let index = 0;
-
       function show(next) {
         index = Math.max(0, Math.min(slides.length - 1, next));
         slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
         bars.forEach((bar) => { bar.style.width = `${((index + 1) / slides.length) * 100}%`; });
       }
-
       document.addEventListener("keydown", (event) => {
         if (["ArrowRight", " ", "PageDown"].includes(event.key)) show(index + 1);
         if (["ArrowLeft", "PageUp", "Backspace"].includes(event.key)) show(index - 1);
       });
-
       document.querySelector("#prev")?.addEventListener("click", () => show(index - 1));
       document.querySelector("#next")?.addEventListener("click", () => show(index + 1));
       show(0);
