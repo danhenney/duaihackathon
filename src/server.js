@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { assets, people, seedCalls, viralPostFallback } from "./data.js";
-import { getStoredCalls, saveLiveSearchResult } from "./db.js";
+import { getStoredCalls } from "./db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -860,20 +860,10 @@ const server = http.createServer(async (request, response) => {
     }
 
     if (url.pathname === "/api/live-search" && request.method === "POST") {
-      const body = await fetchJsonBody(request);
-      const result = await liveSearch(body.query || "", { mode: body.mode || "standard" });
-      const dbResult = await saveLiveSearchResult({
-        query: body.query || "",
-        candidates: result.candidates,
-        calls: result.calls
-      });
       await sendJson(response, {
-        query: body.query || "",
-        status: "completed",
-        usedFallback: result.candidates.some((item) => viralPostFallback.includes(item)),
-        db: dbResult,
-        ...result
-      });
+        error: "live_search_disabled",
+        message: "검색은 저장된 데이터에서만 동작합니다."
+      }, 410);
       return;
     }
 

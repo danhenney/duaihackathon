@@ -1045,34 +1045,22 @@ function renderPerson(person) {
   return true;
 }
 
-function renderLive(calls) {
-  const sorted = [...calls].sort((a, b) => new Date(b.calledAt).getTime() - new Date(a.calledAt).getTime());
-  qs("#search-live").innerHTML = sorted.length ? `
-    <h2 class="section-title">방금 찾은 긍정 의견</h2>
-    ${sorted.map((call) => receiptGroup(`${call.person?.name || "공개 계정"}의 긍정 의견`, call.symbol, [call], call.person)).join("")}
-  ` : `<div class="loading">아직 열린 공개 의견이 없어요. 다른 키워드로 다시 검색해보세요.</div>`;
-  bindCallRows();
-}
-
 function renderUnknownSearch(query) {
   qs("#search-empty").classList.add("hidden");
   qs("#asset-view").classList.add("hidden");
   qs("#person-view").classList.add("hidden");
   qs("#search-live").innerHTML = `
     <section class="confirm-search-card">
-      <span>새로운 대상</span>
-      <h2>${query} 맞나요?</h2>
-      <p>아직 저장된 데이터에는 없어요. 맞다면 공개 포스트와 영상을 찾아 긍정 의견을 추려볼게요.</p>
+      <span>저장된 데이터 없음</span>
+      <h2>${query}</h2>
+      <p>지금 검색은 검증해 저장해둔 인물과 종목만 조회돼요. 랭킹에 반영하려면 먼저 운영 데이터에 추가해야 합니다.</p>
       <div class="confirm-actions">
-        <button id="confirm-live-search" type="button">라이브로 찾아보기</button>
-        <button id="cancel-live-search" type="button">다시 입력하기</button>
+        <button id="cancel-live-search" type="button">다시 검색하기</button>
       </div>
     </section>
   `;
-  qs("#confirm-live-search").addEventListener("click", () => runLiveSearchOnly(query));
   qs("#cancel-live-search").addEventListener("click", resetSearchView);
 }
-
 function renderLeaderboard() {
   const multipliers = { "24h": 1, "7d": 0.92, "30d": 1.08, all: 1.18 };
   const multiplier = multipliers[state.rankWindow] || 1;
@@ -1331,7 +1319,7 @@ function showIdeaDetail(call) {
   });
 }
 
-async function runSearch(query) {
+function runSearch(query) {
   const lower = query.toLowerCase();
   const symbol = Object.keys(state.assets).find((item) => matchesAsset(item, lower));
   const person = state.people.find((item) =>
@@ -1352,43 +1340,8 @@ async function runSearch(query) {
     return;
   }
 
-  qs("#search-live").innerHTML = `<div class="loading">공개 포스트를 살펴보는 중...</div>`;
-  const response = await fetch("/api/live-search", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ query, mode: "standard" })
-  });
-  const data = await response.json();
-  const existing = new Set(state.calls.map((call) => call.id));
-  const fresh = (data.calls || []).filter((call) => !existing.has(call.id));
-  state.calls = [...state.calls, ...fresh];
-  renderLive(data.calls || []);
-  renderLeaderboard();
-  renderFeed();
-  renderFollowing();
+  qs("#search-live").innerHTML = "";
 }
-
-async function runLiveSearchOnly(query) {
-  qs("#search-empty").classList.add("hidden");
-  qs("#asset-view").classList.add("hidden");
-  qs("#person-view").classList.add("hidden");
-  qs("#search-live").innerHTML = `<div class="loading">라이브로 공개 포스트를 살펴보는 중...</div>`;
-
-  const response = await fetch("/api/live-search", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ query, mode: "standard" })
-  });
-  const data = await response.json();
-  const existing = new Set(state.calls.map((call) => call.id));
-  const fresh = (data.calls || []).filter((call) => !existing.has(call.id));
-  state.calls = [...state.calls, ...fresh];
-  renderLive(data.calls || []);
-  renderLeaderboard();
-  renderFeed();
-  renderFollowing();
-}
-
 async function bootstrap() {
   const response = await fetch("/api/bootstrap");
   const data = await response.json();
@@ -1426,3 +1379,4 @@ qs("#share-current").addEventListener("click", () => {
 loadLocalState();
 bootstrap();
 bindRankingTabs();
+
