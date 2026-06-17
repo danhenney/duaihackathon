@@ -484,15 +484,28 @@ function positiveReason(call) {
 }
 
 function statusKo(status) {
-  const map = {
-    seed_verified: "원문 확인",
-    seed_candidate: "검토 후보",
-    candidate: "검토 후보",
-    neutral_reference: "참고 의견",
-    live_candidate: "방금 찾음",
-    ai_detected: "AI 확인"
-  };
-  return map[status] || status;
+  if (status === "neutral_reference") return "참고 의견";
+  return "긍정 의견";
+}
+
+function strengthKo(call = {}) {
+  if (call.status === "neutral_reference") return "강도 하";
+  if (["seed_verified", "ai_detected"].includes(call.status)) return "강도 상";
+  if (call.confidence >= 0.8 || call.status === "seed_candidate") return "강도 중";
+  return "강도 중";
+}
+
+function opinionBadge(call = {}) {
+  const label = statusKo(call.status);
+  if (call.status === "neutral_reference") return label;
+  return `${label} · ${strengthKo(call)}`;
+}
+
+function strengthClass(call = {}) {
+  if (call.status === "neutral_reference") return "low";
+  if (["seed_verified", "ai_detected"].includes(call.status)) return "high";
+  if (call.confidence >= 0.8 || call.status === "seed_candidate") return "mid";
+  return "mid";
 }
 
 function assetLogo(symbol) {
@@ -621,6 +634,7 @@ function sourceDomain(url = "") {
 }
 
 function statusClass(status = "") {
+  if (status === "neutral_reference") return "reference";
   if (status.includes("verified")) return "verified";
   if (status.includes("live") || status.includes("ai")) return "live";
   return "candidate";
@@ -715,7 +729,6 @@ function renderQuickChips() {
 }
 
 function ideaRow(call) {
-  const direction = call.callType === "mention_candidate" ? "관찰" : "긍정";
   return `
     <div class="idea-row">
       <button class="asset-jump" data-symbol="${call.symbol}" type="button" aria-label="${displayAsset(call.symbol)} 보기">
@@ -724,8 +737,8 @@ function ideaRow(call) {
       <div class="idea-main">
         <div class="idea-title-line">
           <strong>${displayAsset(call.symbol)}</strong>
-          <span class="direction">${direction}</span>
-          <span class="verify-badge ${statusClass(call.status)}">${statusKo(call.status)}</span>
+          <span class="direction">${call.status === "neutral_reference" ? "참고 의견" : "긍정 의견"}</span>
+          <span class="verify-badge ${statusClass(call.status)} ${strengthClass(call)}">${opinionBadge(call)}</span>
         </div>
         <p>${positiveReason(call)}</p>
         <div class="idea-meta">
@@ -757,7 +770,7 @@ function receiptGroup(title, subtitle, calls, person) {
       <h3>${title}</h3>
       <div class="source-line">
         <span>${callDateLabel(main.calledAt)}</span>
-        <span class="verify-badge ${statusClass(main.status)}">${statusKo(main.status)}</span>
+        <span class="verify-badge ${statusClass(main.status)} ${strengthClass(main)}">${opinionBadge(main)}</span>
         <a href="${main.sourceUrl}" target="_blank" rel="noreferrer">${sourceDomain(main.sourceUrl)}</a>
       </div>
       <div class="idea-count">아이디어 · ${calls.length}</div>
@@ -1373,7 +1386,7 @@ function renderPerson(person, options = {}) {
       <div class="person-right">
         <button class="follow-button ${isFollowing(person.id) ? "following" : ""}" data-follow-id="${person.id}">${isFollowing(person.id) ? "팔로잉" : "팔로우"}</button>
         <div class="person-meta">
-          <div><strong>${stats.calls.length}</strong><small>원문 확인</small></div>
+          <div><strong>${stats.calls.length}</strong><small>긍정 의견</small></div>
           <div><strong>${stats.wins}</strong><small>성과 좋음</small></div>
           <div><strong>${stats.losses}</strong><small>아쉬움</small></div>
         </div>
@@ -1575,7 +1588,7 @@ function renderFollowing() {
             <button class="follow-person" data-person-id="${person.id}" type="button">${avatar(person)}</button>
             <div>
               <strong>${person.name}</strong>
-              <span>${person.handle || categoryKo(person.category)} · 원문 확인 ${stats.calls.length}개</span>
+              <span>${person.handle || categoryKo(person.category)} · 긍정 의견 ${stats.calls.length}개</span>
             </div>
             <button data-follow-toggle="${person.id}" class="${isFollowing(person.id) ? "following" : ""}" type="button">
               ${isFollowing(person.id) ? "팔로잉" : "팔로우"}
@@ -1594,7 +1607,7 @@ function renderFollowing() {
               <button class="follow-person" data-person-id="${person.id}" type="button">${avatar(person)}</button>
               <div>
                 <strong>${person.name}</strong>
-                <span>${person.handle || categoryKo(person.category)} · 원문 확인 ${stats.calls.length}개</span>
+                <span>${person.handle || categoryKo(person.category)} · 긍정 의견 ${stats.calls.length}개</span>
               </div>
               <button data-follow-toggle="${person.id}" type="button">팔로우</button>
             </div>

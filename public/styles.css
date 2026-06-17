@@ -1352,6 +1352,23 @@ img.asset-badge {
   color: #34794a;
 }
 
+.verify-badge.candidate,
+.verify-badge.mid {
+  background: rgba(70, 132, 83, 0.1);
+  color: #3f7a4e;
+}
+
+.verify-badge.high {
+  background: rgba(34, 197, 94, 0.16);
+  color: #247a3e;
+}
+
+.verify-badge.reference,
+.verify-badge.low {
+  background: rgba(110, 96, 70, 0.09);
+  color: #6b6256;
+}
+
 .verify-badge.live {
   background: rgba(73, 98, 181, 0.12);
   color: #4962b5;
