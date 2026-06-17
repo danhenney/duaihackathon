@@ -178,6 +178,11 @@ function assetAliases(symbol) {
     NOK: ["노키아", "nokia"],
     GEV: ["ge vernova", "ge버노바"],
     MRVL: ["마벨", "마벨테크놀로지", "marvell"],
+    AAOI: ["applied optoelectronics", "어플라이드옵토일렉트로닉스"],
+    AEHR: ["aehr test systems", "에어테스트시스템즈"],
+    NBIS: ["nebius", "네비우스"],
+    IREN: ["iren"],
+    SPCX: ["spacex", "스페이스x", "스페이스엑스"],
     BRK_B: ["brk-b", "berkshire", "버크셔"],
     TSM: ["tsmc", "대만반도체"],
     MSTR: ["microstrategy", "strategy", "마이크로스트래티지"]
