@@ -250,9 +250,7 @@ main {
   font-size: 18px;
 }
 
-.search-panel button,
-.follow-button,
-.follow-row button {
+.search-panel button {
   border: 0;
   border-radius: 999px;
   background: var(--ink);
@@ -409,10 +407,30 @@ main {
 }
 
 .quick-chips {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: center;
+  align-items: start;
+  gap: 18px 28px;
+  margin-top: 24px;
+  text-align: left;
+}
+
+.quick-group {
+  display: grid;
+  gap: 8px;
+}
+
+.quick-group > span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-group > div {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 24px;
+  gap: 8px;
 }
 
 .quick-chips button,
@@ -1524,14 +1542,6 @@ img.asset-badge {
   gap: 14px;
 }
 
-.person-right .follow-button {
-  justify-self: end;
-  width: auto;
-  min-width: 112px;
-  height: 44px;
-  padding: 0 18px;
-}
-
 .person-return {
   justify-self: stretch;
   border: 1px solid var(--line);
@@ -1563,10 +1573,6 @@ img.asset-badge {
   width: min(960px, 100%);
   margin-left: auto;
   margin-right: auto;
-}
-
-.follow-button {
-  height: 50px;
 }
 
 .person-meta {
@@ -1646,16 +1652,13 @@ img.asset-badge {
 }
 
 .leaderboard,
-.activity-feed,
-.following-list,
-.settings-list {
+.activity-feed {
   display: grid;
   gap: 8px;
 }
 
 .rank-row,
-.activity-row,
-.follow-row {
+.activity-row {
   width: 100%;
   display: grid;
   align-items: center;
@@ -1688,14 +1691,12 @@ img.asset-badge {
   color: var(--muted);
 }
 
-.rank-name strong,
-.follow-row strong {
+.rank-name strong {
   display: block;
   font-size: 23px;
 }
 
-.rank-name span,
-.follow-row span {
+.rank-name span {
   color: var(--muted);
 }
 
@@ -1818,119 +1819,10 @@ img.asset-badge {
   color: var(--muted);
 }
 
-.login-card,
-.account-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-  gap: 24px;
-  align-items: center;
-  margin-bottom: 28px;
-  padding: 28px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: var(--paper);
-  box-shadow: var(--shadow);
-}
-
-.account-card {
-  grid-template-columns: 82px minmax(0, 1fr) auto;
-}
-
-.login-card span {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 950;
-}
-
-.login-card h2,
-.account-card h2 {
-  margin: 0 0 8px;
-  font-size: clamp(28px, 3vw, 42px);
-}
-
-.login-card p,
-.account-card p {
-  margin: 0;
-  color: var(--muted);
-}
-
-.login-form {
-  display: grid;
-  gap: 10px;
-}
-
-.login-form input {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #f8f6ef;
-  color: var(--ink);
-  padding: 14px 15px;
-  outline: none;
-}
-
-.login-form input:focus {
-  border-color: var(--ink);
-}
-
-.login-form button,
-#logout-button {
-  border: 0;
-  border-radius: 14px;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 14px 16px;
-  font-weight: 950;
-}
-
-#logout-button {
-  background: transparent;
-  border: 1px solid var(--line);
-  color: var(--muted);
-}
-
 .section-title.compact {
   margin-top: 20px;
   margin-bottom: 12px;
   font-size: 24px;
-}
-
-.following-list.inner {
-  margin-bottom: 20px;
-}
-
-.follow-row {
-  grid-template-columns: 64px 1fr auto;
-}
-
-.follow-person {
-  border: 0;
-  background: transparent;
-  padding: 0;
-}
-
-.follow-row .follow-person {
-  width: 56px;
-  height: 56px;
-  min-width: 0;
-}
-
-.follow-row .avatar-img {
-  width: 56px;
-  height: 56px;
-}
-
-.follow-row button {
-  height: 46px;
-  min-width: 108px;
-}
-
-.follow-row button.following {
-  border: 1px solid var(--line);
-  background: var(--paper);
-  color: var(--ink);
 }
 
 .settings-list label {
@@ -2252,6 +2144,11 @@ img.asset-badge {
     min-height: 46px;
   }
 
+  .quick-chips {
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+  }
+
   .asset-hero,
   .person-hero {
     grid-template-columns: auto 64px 1fr;
@@ -2271,8 +2168,7 @@ img.asset-badge {
     flex-wrap: wrap;
   }
 
-  .asset-price,
-  .follow-button {
+  .asset-price {
     grid-column: 2 / -1;
     justify-self: start;
     text-align: left;

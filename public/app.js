@@ -8,12 +8,7 @@
   currentAsset: null,
   currentPersonId: null,
   chartData: {},
-  chartLoading: {},
-  session: null,
-  following: [],
-  notifyNewIdeas: true,
-  notifyReturns: true,
-  notifyWeekly: false
+  chartLoading: {}
 };
 
 const qs = (selector) => document.querySelector(selector);
@@ -64,30 +59,6 @@ function returnClass(call) {
   return hasReturn(call) ? pnlClass(call.returnPct) : "pending";
 }
 
-function loadLocalState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem("receiptsUser") || "{}");
-    state.session = saved.session || null;
-    state.following = Array.isArray(saved.following) ? saved.following : [];
-    state.notifyNewIdeas = saved.notifyNewIdeas ?? true;
-    state.notifyReturns = saved.notifyReturns ?? true;
-    state.notifyWeekly = saved.notifyWeekly ?? false;
-  } catch {
-    state.session = null;
-    state.following = [];
-  }
-}
-
-function saveLocalState() {
-  localStorage.setItem("receiptsUser", JSON.stringify({
-    session: state.session,
-    following: state.following,
-    notifyNewIdeas: state.notifyNewIdeas,
-    notifyReturns: state.notifyReturns,
-    notifyWeekly: state.notifyWeekly
-  }));
-}
-
 function loadSearchStats() {
   try {
     return JSON.parse(localStorage.getItem("sarahatjeSearchStats") || "{}");
@@ -115,24 +86,6 @@ function recordSearchHit(kind, id, label) {
   renderQuickChips();
 }
 
-function isFollowing(personId) {
-  return state.following.includes(personId);
-}
-
-function toggleFollow(personId) {
-  if (!personId) return;
-  if (!state.session) {
-    switchTab("me");
-    renderFollowing();
-    return;
-  }
-  state.following = isFollowing(personId)
-    ? state.following.filter((id) => id !== personId)
-    : [...state.following, personId];
-  saveLocalState();
-  renderFollowing();
-}
-
 function assetName(symbol) {
   return state.assets[symbol]?.name || symbol;
 }
@@ -140,7 +93,7 @@ function assetName(symbol) {
 function assetAliases(symbol) {
   const aliases = {
     "000660.KS": ["하이닉스", "sk하이닉스", "sk hynix", "hynix"],
-    "005930.KS": ["삼성전자", "삼전", "samsung"],
+    "005930.KS": ["삼성전자", "삼성전", "삼전", "samsung"],
     "035420.KS": ["네이버", "naver"],
     "035720.KS": ["카카오", "kakao"],
     "005380.KS": ["현대차", "hyundai"],
@@ -676,7 +629,7 @@ function holdingPeriod(date) {
 function switchTab(tab) {
   qsa(".tab").forEach((node) => node.classList.toggle("active", node.id === `tab-${tab}`));
   qsa(".bottom-nav button").forEach((node) => node.classList.toggle("active", node.dataset.tab === tab));
-  const titles = { search: "검색", feed: "피드", rank: "랭킹", me: "마이" };
+  const titles = { search: "검색", feed: "피드", rank: "랭킹" };
   if (qs("#page-title")) qs("#page-title").textContent = titles[tab];
   setShareVisible(false);
 }
@@ -706,35 +659,33 @@ function renderOrbitalAvatars() {
   }).join("");
 }
 
-function defaultQuickItems() {
-  const bySymbol = new Map();
-  for (const call of state.calls.filter(isScoredCall)) {
-    const item = bySymbol.get(call.symbol) || { kind: "asset", id: call.symbol, label: displayAsset(call.symbol), count: 0, score: 0 };
-    item.count += 1;
-    item.score += Math.max(0, call.returnPct || 0) + (call.viralScore || 0) / 20;
-    bySymbol.set(call.symbol, item);
-  }
-  return [...bySymbol.values()]
-    .sort((a, b) => b.count - a.count || b.score - a.score)
-    .slice(0, 4);
-}
-
 function renderQuickChips() {
   const container = qs(".quick-chips");
-  if (!container || !state.calls.length) return;
-  const statsItems = Object.values(loadSearchStats())
-    .sort((a, b) => (b.count || 0) - (a.count || 0) || (b.updatedAt || 0) - (a.updatedAt || 0));
-  const merged = [];
-  const seen = new Set();
-  for (const item of [...statsItems, ...defaultQuickItems()]) {
-    const key = `${item.kind}:${item.id}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    merged.push(item);
-    if (merged.length >= 4) break;
-  }
-  container.innerHTML = merged.map((item) => `
-    <button data-query="${item.kind === "person" ? item.label : item.id}" type="button">${item.label}</button>
+  if (!container) return;
+  const groups = [
+    {
+      title: "인물 검색 순위",
+      items: [
+        { label: "전원주", query: "전원주" },
+        { label: "삼천당제약 할머니", query: "삼천당제약 할머니" },
+        { label: "전인구", query: "전인구" }
+      ]
+    },
+    {
+      title: "종목 검색 순위",
+      items: [
+        { label: "하이닉스", query: "하이닉스" },
+        { label: "삼성전자", query: "삼성전" }
+      ]
+    }
+  ];
+  container.innerHTML = groups.map((group) => `
+    <div class="quick-group">
+      <span>${group.title}</span>
+      <div>
+        ${group.items.map((item) => `<button data-query="${item.query}" type="button">${item.label}</button>`).join("")}
+      </div>
+    </div>
   `).join("");
   bindQuickChips();
 }
@@ -1395,7 +1346,6 @@ function renderPerson(person, options = {}) {
         </div>
       </div>
       <div class="person-right">
-        <button class="follow-button ${isFollowing(person.id) ? "following" : ""}" data-follow-id="${person.id}">${isFollowing(person.id) ? "팔로잉" : "팔로우"}</button>
         <div class="person-meta">
           <div><strong>${stats.calls.length}</strong><small>긍정 의견</small></div>
           <div><strong>${stats.wins}</strong><small>성과 좋음</small></div>
@@ -1414,10 +1364,6 @@ function renderPerson(person, options = {}) {
     ${receiptGroup(`${person.name}이 긍정적으로 본 아이디어`, person.handle, displayCalls, person)}
   `;
   qs("#person-view .back-button").addEventListener("click", resetSearchView);
-  qs("#person-view [data-follow-id]")?.addEventListener("click", () => {
-    toggleFollow(person.id);
-    renderPerson(person);
-  });
   bindCallRows();
   if (!options.skipChartFetch) refreshPersonPrices(person);
   return true;
@@ -1540,128 +1486,6 @@ function renderFeed() {
   });
 }
 
-function renderFollowing() {
-  const list = qs("#following-list");
-  if (!list) return;
-
-  if (!state.session) {
-    list.innerHTML = `
-      <section class="login-card">
-        <div>
-          <span>사라했제</span>
-          <h2>내 계정으로 팔로우 관리</h2>
-          <p>이름과 이메일만 넣으면 데모용 계정이 만들어지고, 팔로우와 알림 설정이 이 브라우저에 저장됩니다.</p>
-        </div>
-        <form id="login-form" class="login-form">
-          <input id="login-name" name="name" type="text" placeholder="이름" required>
-          <input id="login-email" name="email" type="email" placeholder="email@example.com" required>
-          <button type="submit">로그인</button>
-        </form>
-      </section>
-    `;
-    qs("#login-form")?.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      state.session = {
-        name: String(form.get("name") || "").trim(),
-        email: String(form.get("email") || "").trim(),
-        signedInAt: new Date().toISOString()
-      };
-      if (!state.following.length) {
-        state.following = state.people.filter((person) => person.featured).slice(0, 2).map((person) => person.id);
-      }
-      saveLocalState();
-      renderFollowing();
-    });
-    return;
-  }
-
-  const followed = state.people.filter((person) => isFollowing(person.id));
-  const suggestions = state.people.filter((person) => !isFollowing(person.id)).slice(0, 6);
-  const visiblePeople = followed.length ? followed : suggestions;
-  const modeTitle = followed.length ? "내가 팔로우하는 사람" : "팔로우할 사람을 골라보세요";
-
-  list.innerHTML = `
-    <section class="account-card">
-      <div class="brand-dot big">${state.session.name.slice(0, 1).toUpperCase()}</div>
-      <div>
-        <h2>${state.session.name}</h2>
-        <p>${state.session.email} · ${state.following.length}명 팔로우 중</p>
-      </div>
-      <button id="logout-button" type="button">로그아웃</button>
-    </section>
-    <h2 class="section-title compact">${modeTitle}</h2>
-    <div class="following-list inner">
-      ${visiblePeople.map((person) => {
-        const stats = personStats(person.id);
-        return `
-          <div class="follow-row">
-            <button class="follow-person" data-person-id="${person.id}" type="button">${avatar(person)}</button>
-            <div>
-              <strong>${person.name}</strong>
-              <span>${person.handle || categoryKo(person.category)} · 긍정 의견 ${stats.calls.length}개</span>
-            </div>
-            <button data-follow-toggle="${person.id}" class="${isFollowing(person.id) ? "following" : ""}" type="button">
-              ${isFollowing(person.id) ? "팔로잉" : "팔로우"}
-            </button>
-          </div>
-        `;
-      }).join("")}
-    </div>
-    ${followed.length ? `
-      <h2 class="section-title compact">추천 인플루언서</h2>
-      <div class="following-list inner">
-        ${suggestions.slice(0, 4).map((person) => {
-          const stats = personStats(person.id);
-          return `
-            <div class="follow-row">
-              <button class="follow-person" data-person-id="${person.id}" type="button">${avatar(person)}</button>
-              <div>
-                <strong>${person.name}</strong>
-                <span>${person.handle || categoryKo(person.category)} · 긍정 의견 ${stats.calls.length}개</span>
-              </div>
-              <button data-follow-toggle="${person.id}" type="button">팔로우</button>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    ` : ""}
-    <h2 class="section-title compact">알림 설정</h2>
-    <div class="settings-list">
-      <label><span>새 긍정 의견이 잡히면 알려주기</span><input data-setting="notifyNewIdeas" type="checkbox" ${state.notifyNewIdeas ? "checked" : ""}></label>
-      <label><span>수익률이 크게 바뀌면 알려주기</span><input data-setting="notifyReturns" type="checkbox" ${state.notifyReturns ? "checked" : ""}></label>
-      <label><span>매주 가장 잘 맞힌 사람 요약 받기</span><input data-setting="notifyWeekly" type="checkbox" ${state.notifyWeekly ? "checked" : ""}></label>
-    </div>
-  `;
-
-  qs("#logout-button")?.addEventListener("click", () => {
-    state.session = null;
-    saveLocalState();
-    renderFollowing();
-  });
-
-  qsa("[data-follow-toggle]").forEach((button) => {
-    button.addEventListener("click", () => toggleFollow(button.dataset.followToggle));
-  });
-
-  qsa(".follow-person").forEach((button) => {
-    button.addEventListener("click", () => {
-      const person = state.people.find((item) => item.id === button.dataset.personId);
-      if (person) {
-        switchTab("search");
-        renderPerson(person);
-      }
-    });
-  });
-
-  qsa("[data-setting]").forEach((input) => {
-    input.addEventListener("change", () => {
-      state[input.dataset.setting] = input.checked;
-      saveLocalState();
-    });
-  });
-}
-
 function showShare(call) {
   const card = qs("#share-card");
   card.classList.remove("hidden");
@@ -1758,7 +1582,6 @@ async function bootstrap() {
   renderQuickChips();
   renderLeaderboard();
   renderFeed();
-  renderFollowing();
 }
 
 qsa(".bottom-nav button").forEach((button) => {
@@ -1786,7 +1609,6 @@ qs("#share-current").addEventListener("click", () => {
   if (state.selectedCall) showShare(state.selectedCall);
 });
 
-loadLocalState();
 bootstrap();
 bindRankingTabs();
 
