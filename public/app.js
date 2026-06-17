@@ -52,12 +52,16 @@ function isScoredCall(call) {
   return ["seed_verified", "ai_detected"].includes(call?.status);
 }
 
+function hasReturn(call) {
+  return call?.returnPct != null && !Number.isNaN(Number(call.returnPct));
+}
+
 function returnLabel(call) {
-  return isScoredCall(call) && call.returnPct != null ? `의견 이후 ${pct(call.returnPct)}` : "검증 전";
+  return hasReturn(call) ? `의견 이후 ${pct(call.returnPct)}` : "수익률 대기";
 }
 
 function returnClass(call) {
-  return isScoredCall(call) && call.returnPct != null ? pnlClass(call.returnPct) : "pending";
+  return hasReturn(call) ? pnlClass(call.returnPct) : "pending";
 }
 
 function loadLocalState() {
@@ -746,8 +750,8 @@ function ideaRow(call) {
           <a href="${call.sourceUrl}" target="_blank" rel="noreferrer">${sourceLabel(call)} · ${sourceDomain(call.sourceUrl)}</a>
         </div>
       </div>
-      <em>${isScoredCall(call) ? price(call.currentPrice, call.currency) : "가격 확인 전"}</em>
-      <button class="idea-open ${returnClass(call)}" data-call-id="${call.id}" type="button">${isScoredCall(call) ? pct(call.returnPct) : "검증 전"}</button>
+      <em>${hasReturn(call) ? price(call.currentPrice, call.currency) : "가격 확인 중"}</em>
+      <button class="idea-open ${returnClass(call)}" data-call-id="${call.id}" type="button">${hasReturn(call) ? pct(call.returnPct) : "수익률 대기"}</button>
     </div>
   `;
 }

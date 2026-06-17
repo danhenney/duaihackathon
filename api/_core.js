@@ -51,8 +51,8 @@ export function enrichCall(call, latestPrices = {}) {
   const latest = latestFromMap(call.symbol, latestPrices);
   const fallback = priceFallbacks[call.symbol];
   const current = Number(latest?.currentPrice ?? fallback?.current ?? call.currentPrice);
-  const canScore = ["seed_verified", "ai_detected"].includes(call.status);
-  const returnPct = canScore && Number.isFinite(entry) && Number.isFinite(current) && entry > 0
+  const canShowReturn = call.status !== "neutral_reference";
+  const returnPct = canShowReturn && Number.isFinite(entry) && Number.isFinite(current) && entry > 0
     ? ((current - entry) / entry) * 100
     : null;
 
