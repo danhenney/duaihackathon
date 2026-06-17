@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { assets, people, seedCalls, viralPostFallback } from "./data.js";
-import { getStoredCalls } from "./db.js";
+import { getStoredCalls, saveLiveSearchResult } from "./db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -179,7 +179,9 @@ function classifyCall(text = "") {
     : "mention_candidate";
 }
 function candidateToCalls(candidate) {
-  const symbols = candidate.detectedAssets?.length ? candidate.detectedAssets : extractSymbols(candidate.snippet);
+  const symbols = (candidate.detectedAssets?.length ? candidate.detectedAssets : extractSymbols(candidate.snippet))
+    .map(normalizeModelSymbol)
+    .filter((symbol) => assets[symbol]);
   const person = people.find((item) => item.handle?.toLowerCase() === candidate.authorHandle?.toLowerCase())
     || people.find((item) => item.name === candidate.authorHandle);
 
@@ -734,8 +736,10 @@ async function resolveCandidatePrices(candidates) {
 
 async function liveSearch(query, options = {}) {
   const mode = options.mode || "standard";
+  const includeLocal = options.includeLocal ?? true;
+  const includeWeb = options.includeWeb ?? true;
   const q = normalizeQuery(query);
-  const localCandidates = viralPostFallback.filter((candidate) => {
+  const localCandidates = includeLocal ? viralPostFallback.filter((candidate) => {
     const haystack = [
       candidate.authorHandle,
       candidate.snippet,
@@ -743,13 +747,13 @@ async function liveSearch(query, options = {}) {
       candidate.sourceUrl
     ].join(" ").toLowerCase();
     return !q || q.split(/\s+/).some((part) => haystack.includes(part.replace("@", "")));
-  });
+  }) : [];
 
-  const webQueries = buildSearchQueries(query);
+  const webQueries = includeWeb ? buildSearchQueries(query) : [];
   const [timelineCandidates, keywordCandidates, webResults] = await Promise.all([
     fetchXUserCandidates(query, mode),
     fetchXKeywordCandidates(query, mode),
-    Promise.all(webQueries.map(tryDuckDuckGo)).then((items) => items.flat())
+    includeWeb ? Promise.all(webQueries.map(tryDuckDuckGo)).then((items) => items.flat()) : []
   ]);
   const webCandidates = webResults
     .filter((result) => result.url.includes("x.com") || result.url.includes("twitter.com"))
@@ -786,6 +790,58 @@ async function liveSearch(query, options = {}) {
       aiDetectedCount: priced.filter((item) => item.aiStatus === "ai_detected").length
     }
   };
+}
+
+async function ingestTrackedX({ handles = [], limit = 8, mode = "standard" } = {}) {
+  const trackedHandles = handles.length
+    ? handles
+    : people
+      .map((person) => person.handle)
+      .filter((handle) => handle?.startsWith("@"));
+  const selected = [...new Set(trackedHandles)].slice(0, limit);
+  const results = [];
+  for (const handle of selected) {
+    const result = await liveSearch(handle, {
+      mode,
+      includeLocal: false,
+      includeWeb: false
+    });
+    results.push({
+      handle,
+      ...result
+    });
+  }
+  const candidates = results.flatMap((result) => result.candidates || []);
+  const calls = results.flatMap((result) => result.calls || []);
+  return {
+    handles: selected,
+    candidates,
+    calls,
+    results,
+    meta: {
+      handleCount: selected.length,
+      candidateCount: candidates.length,
+      callCount: calls.length,
+      aiDetectedCount: candidates.filter((candidate) => candidate.aiStatus === "ai_detected").length
+    }
+  };
+}
+
+function isCronAuthorized(request, url) {
+  const secret = process.env.CRON_SECRET || "";
+  if (!secret) return process.env.NODE_ENV !== "production";
+  const auth = request.headers.authorization || "";
+  const headerSecret = request.headers["x-cron-secret"] || "";
+  const querySecret = url.searchParams.get("secret") || "";
+  return auth === `Bearer ${secret}` || headerSecret === secret || querySecret === secret;
+}
+
+function parseHandles(value = "") {
+  return String(value)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => item.startsWith("@") ? item : `@${item}`);
 }
 
 async function fetchJsonBody(request) {
@@ -864,6 +920,43 @@ const server = http.createServer(async (request, response) => {
         error: "live_search_disabled",
         message: "검색은 저장된 데이터에서만 동작합니다."
       }, 410);
+      return;
+    }
+
+    if (url.pathname === "/api/ingest" && ["GET", "POST"].includes(request.method)) {
+      if (!isCronAuthorized(request, url)) {
+        await sendJson(response, { error: "unauthorized" }, 401);
+        return;
+      }
+      const body = request.method === "POST" ? await fetchJsonBody(request) : {};
+      const handles = parseHandles(body.handles || url.searchParams.get("handles") || "");
+      const limit = Math.max(1, Math.min(12, Number(body.limit || url.searchParams.get("limit") || 8)));
+      const mode = body.mode || url.searchParams.get("mode") || "standard";
+      const dryRun = String(body.dryRun ?? url.searchParams.get("dryRun") ?? "false") === "true";
+      const ingested = await ingestTrackedX({ handles, limit, mode });
+      const saved = dryRun
+        ? { savedCalls: 0, savedCandidates: 0, dryRun: true }
+        : await saveLiveSearchResult({
+          query: handles.length ? handles.join(",") : "tracked-x",
+          candidates: ingested.candidates,
+          calls: ingested.calls
+        });
+      await sendJson(response, {
+        ok: true,
+        dryRun,
+        saved,
+        meta: ingested.meta,
+        handles: ingested.handles,
+        calls: ingested.calls.map((call) => ({
+          id: call.id,
+          personId: call.personId,
+          symbol: call.symbol,
+          calledAt: call.calledAt,
+          sourceUrl: call.sourceUrl,
+          status: call.status,
+          confidence: call.confidence
+        }))
+      });
       return;
     }
 

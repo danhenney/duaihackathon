@@ -353,7 +353,9 @@ export async function fetchYahooChart(symbol, range = "all") {
 }
 
 export function candidateToCalls(candidate) {
-  const symbols = candidate.detectedAssets?.length ? candidate.detectedAssets : extractSymbols(candidate.snippet);
+  const symbols = (candidate.detectedAssets?.length ? candidate.detectedAssets : extractSymbols(candidate.snippet))
+    .map(normalizeModelSymbol)
+    .filter((symbol) => assets[symbol]);
   const person = people.find((item) => item.handle?.toLowerCase() === candidate.authorHandle?.toLowerCase())
     || people.find((item) => item.name === candidate.authorHandle);
 
@@ -699,8 +701,10 @@ export async function resolveCandidatePrices(candidates) {
 
 export async function liveSearch(query, options = {}) {
   const mode = options.mode || "standard";
+  const includeLocal = options.includeLocal ?? true;
+  const includeWeb = options.includeWeb ?? true;
   const q = normalizeQuery(query);
-  const localCandidates = viralPostFallback.filter((candidate) => {
+  const localCandidates = includeLocal ? viralPostFallback.filter((candidate) => {
     const haystack = [
       candidate.authorHandle,
       candidate.snippet,
@@ -708,13 +712,13 @@ export async function liveSearch(query, options = {}) {
       candidate.sourceUrl
     ].join(" ").toLowerCase();
     return !q || q.split(/\s+/).some((part) => haystack.includes(part.replace("@", "")));
-  });
+  }) : [];
 
-  const webQueries = buildSearchQueries(query);
+  const webQueries = includeWeb ? buildSearchQueries(query) : [];
   const [timelineCandidates, keywordCandidates, webResults] = await Promise.all([
     fetchXUserCandidates(query, mode),
     fetchXKeywordCandidates(query, mode),
-    Promise.all(webQueries.map(tryDuckDuckGo)).then((items) => items.flat())
+    includeWeb ? Promise.all(webQueries.map(tryDuckDuckGo)).then((items) => items.flat()) : []
   ]);
   const webCandidates = webResults
     .filter((result) => result.url.includes("x.com") || result.url.includes("twitter.com"))
@@ -749,6 +753,41 @@ export async function liveSearch(query, options = {}) {
       keywordCount: keywordCandidates.length,
       webCount: webCandidates.length,
       aiDetectedCount: priced.filter((item) => item.aiStatus === "ai_detected").length
+    }
+  };
+}
+
+export async function ingestTrackedX({ handles = [], limit = 8, mode = "standard" } = {}) {
+  const trackedHandles = handles.length
+    ? handles
+    : people
+      .map((person) => person.handle)
+      .filter((handle) => handle?.startsWith("@"));
+  const selected = [...new Set(trackedHandles)].slice(0, limit);
+  const results = [];
+  for (const handle of selected) {
+    const result = await liveSearch(handle, {
+      mode,
+      includeLocal: false,
+      includeWeb: false
+    });
+    results.push({
+      handle,
+      ...result
+    });
+  }
+  const candidates = results.flatMap((result) => result.candidates || []);
+  const calls = results.flatMap((result) => result.calls || []);
+  return {
+    handles: selected,
+    candidates,
+    calls,
+    results,
+    meta: {
+      handleCount: selected.length,
+      candidateCount: candidates.length,
+      callCount: calls.length,
+      aiDetectedCount: candidates.filter((candidate) => candidate.aiStatus === "ai_detected").length
     }
   };
 }
