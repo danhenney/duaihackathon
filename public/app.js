@@ -194,6 +194,11 @@ function matchesPerson(person, query) {
   return personAliases(person).some((alias) => normalizeSearchText(alias) === normalized);
 }
 
+function personSubjectParticle(person = {}) {
+  const name = person.name || person.handle || "";
+  return /[가-힣]/.test(name) ? "가" : "이";
+}
+
 function summaryPersonButton(call, extra = "") {
   if (!call?.person) return "<strong>-</strong>";
   return `
@@ -1452,7 +1457,7 @@ function renderFeed() {
         ${avatar(call.person)}
       </button>
       <div class="activity-main">
-        <p><button class="feed-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>이 <button class="feed-asset" data-symbol="${call.symbol}" type="button">${displayAsset(call.symbol)}</button>에 긍정 의견을 냈어요 <span>${callDateLabel(call.calledAt)} · ${holdingPeriod(call.calledAt)} 전</span></p>
+        <p><button class="feed-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>${personSubjectParticle(call.person)} <button class="feed-asset" data-symbol="${call.symbol}" type="button">${displayAsset(call.symbol)}</button>에 긍정 의견을 냈어요 <span>${callDateLabel(call.calledAt)} · ${holdingPeriod(call.calledAt)} 전</span></p>
         <button class="mini-position" data-call-id="${call.id}" type="button">
           ${assetIcon(call.symbol, "feed-asset-icon")}
           <div>
