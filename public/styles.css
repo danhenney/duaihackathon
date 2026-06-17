@@ -25,7 +25,7 @@ body {
     var(--bg);
   background-size: 48px 48px;
   color: var(--ink);
-  font-family: "Pretendard", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Nanum Gothic", "나눔고딕", "NanumGothic", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   word-break: keep-all;
 }
 
@@ -56,6 +56,86 @@ button {
   background: rgba(247, 246, 241, 0.86);
   backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(222, 217, 207, 0.8);
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  position: relative;
+  width: 58px;
+  height: 68px;
+  flex: 0 0 auto;
+  border: 6px solid #0f172a;
+  border-bottom: 0;
+  border-radius: 16px 16px 4px 4px;
+  background: var(--paper);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.brand-mark::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: -13px;
+  height: 22px;
+  background:
+    linear-gradient(135deg, transparent 0 10px, #0f172a 10px 16px, transparent 16px) left bottom / 23px 22px repeat-x;
+}
+
+.brand-mark::after {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 17px;
+  width: 28px;
+  height: 6px;
+  border-radius: 999px;
+  background: #c9c9c4;
+  box-shadow: 0 13px 0 #d5d5d0, 0 26px 0 #deded9;
+}
+
+.brand-mark span {
+  position: absolute;
+  left: 18px;
+  top: 36px;
+  width: 28px;
+  height: 15px;
+  border-left: 7px solid #22c55e;
+  border-bottom: 7px solid #22c55e;
+  transform: rotate(-45deg);
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.brand-mark i {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  width: 22px;
+  height: 16px;
+  border-radius: 12px 0 10px 0;
+  background: #0f172a;
+}
+
+.brand-name {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(28px, 2.9vw, 44px);
+  line-height: 0.95;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
+.brand-tagline {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 850;
 }
 
 .ticker {
@@ -121,12 +201,12 @@ main {
 .bottom-nav button {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
-  padding: 10px 14px;
+  padding: 8px 12px;
   font-weight: 800;
 }
 
@@ -136,11 +216,14 @@ main {
 }
 
 .bottom-nav span {
-  font-size: 17px;
+  width: 18px;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
 }
 
 .bottom-nav small {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .search-panel {
@@ -476,6 +559,51 @@ img.asset-badge {
   font-size: 20px;
 }
 
+.summary-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.summary-asset {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.summary-person strong,
+.summary-asset strong {
+  margin-top: 0;
+}
+
+.summary-person-avatar,
+.summary-asset-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.summary-person:hover strong,
+.summary-asset:hover strong {
+  text-decoration: underline;
+}
+
 .tabs-line {
   display: flex;
   gap: 20px;
@@ -495,6 +623,73 @@ img.asset-badge {
 .tabs-line .active {
   color: var(--ink);
   border-bottom: 2px solid var(--ink);
+}
+
+.asset-info-panel {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0 28px;
+}
+
+.asset-info-card {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 254, 250, 0.86);
+  padding: 22px;
+}
+
+.asset-info-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  background: #f0ece4;
+  padding: 6px;
+}
+
+.asset-info-card span,
+.asset-info-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.asset-info-card h3 {
+  margin: 4px 0 10px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.asset-info-card p {
+  margin: 0;
+  color: #555149;
+  line-height: 1.65;
+}
+
+.asset-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.asset-info-grid > div {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 254, 250, 0.78);
+  padding: 16px;
+}
+
+.asset-info-grid strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 17px;
+  line-height: 1.25;
 }
 
 .asset-timeline {
@@ -769,13 +964,13 @@ img.asset-badge {
 .rail-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 220px;
+  gap: 8px;
+  min-width: 176px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   color: #f8f7f2;
-  padding: 8px 12px 8px 8px;
+  padding: 8px 12px 8px 10px;
   text-align: left;
 }
 
@@ -788,10 +983,20 @@ img.asset-badge {
 }
 
 .rail-avatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.rail-medal {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  flex: 0 0 24px;
+  font-size: 18px;
+  font-weight: 950;
+  color: #c9cdd6;
 }
 
 .rail-person,
@@ -805,10 +1010,8 @@ img.asset-badge {
 }
 
 .rail-detail {
-  min-width: 0;
-}
-
-.rail-detail small {
+  margin-left: auto;
+  font-weight: 950;
   white-space: nowrap;
 }
 
@@ -824,9 +1027,8 @@ img.asset-badge {
   display: block;
 }
 
-.rail-item small {
-  color: #aab0bb;
-  font-size: 12px;
+.rail-detail strong {
+  font-size: 15px;
 }
 
 .grid-lines line {
@@ -969,9 +1171,31 @@ img.asset-badge {
   height: 54px;
 }
 
-.receipt-group header strong {
+.receipt-person-avatar,
+.receipt-person-name {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.receipt-person-avatar {
+  width: 58px;
+  height: 58px;
+}
+
+.receipt-person-avatar:hover .avatar-img,
+.receipt-person-name:hover {
+  filter: brightness(1.06);
+  text-decoration: underline;
+}
+
+.receipt-person-name {
   display: block;
   font-size: 18px;
+  font-weight: 900;
 }
 
 .receipt-group header span {
@@ -1188,6 +1412,9 @@ img.asset-badge {
 
 .person-hero {
   grid-template-columns: auto minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  width: min(960px, 100%);
+  margin-left: auto;
+  margin-right: auto;
   position: relative;
   overflow: hidden;
   border-color: rgba(201, 193, 181, 0.72);
@@ -1316,7 +1543,7 @@ img.asset-badge {
 }
 
 #person-view .receipt-group {
-  width: min(865px, 100%);
+  width: min(960px, 100%);
   margin-left: auto;
   margin-right: auto;
 }
@@ -1352,7 +1579,7 @@ img.asset-badge {
 
 .performance-panel.slim {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: min(865px, 100%);
+  width: min(960px, 100%);
   margin-left: auto;
   margin-right: auto;
 }
@@ -1925,6 +2152,54 @@ img.asset-badge {
     width: min(100vw - 28px, 680px);
   }
 
+  .app-header {
+    padding-top: 18px;
+  }
+
+  .brand-lockup {
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: 52px;
+    border-width: 5px;
+    border-radius: 13px 13px 4px 4px;
+  }
+
+  .brand-mark::before {
+    left: -5px;
+    right: -5px;
+    bottom: -11px;
+    height: 18px;
+    background-size: 19px 18px;
+  }
+
+  .brand-mark::after {
+    left: 10px;
+    top: 13px;
+    width: 22px;
+    height: 5px;
+    box-shadow: 0 10px 0 #d5d5d0, 0 20px 0 #deded9;
+  }
+
+  .brand-mark span {
+    left: 14px;
+    top: 28px;
+    width: 22px;
+    height: 12px;
+    border-left-width: 6px;
+    border-bottom-width: 6px;
+  }
+
+  .brand-name {
+    font-size: 28px;
+  }
+
+  .brand-tagline {
+    font-size: 13px;
+  }
+
   .bottom-nav {
     top: auto;
     bottom: 14px;
@@ -1942,7 +2217,12 @@ img.asset-badge {
 
   .search-empty,
   .summary-pills,
-  .performance-panel {
+  .performance-panel,
+  .asset-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-info-card {
     grid-template-columns: 1fr;
   }
 

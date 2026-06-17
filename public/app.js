@@ -6,6 +6,7 @@
   rankWindow: "24h",
   assetWindow: "all",
   currentAsset: null,
+  currentPersonId: null,
   chartData: {},
   chartLoading: {},
   session: null,
@@ -83,6 +84,33 @@ function saveLocalState() {
   }));
 }
 
+function loadSearchStats() {
+  try {
+    return JSON.parse(localStorage.getItem("sarahatjeSearchStats") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveSearchStats(stats) {
+  localStorage.setItem("sarahatjeSearchStats", JSON.stringify(stats));
+}
+
+function recordSearchHit(kind, id, label) {
+  if (!kind || !id) return;
+  const key = `${kind}:${id}`;
+  const stats = loadSearchStats();
+  const current = stats[key] || { kind, id, label, count: 0, updatedAt: 0 };
+  stats[key] = {
+    ...current,
+    label,
+    count: (current.count || 0) + 1,
+    updatedAt: Date.now()
+  };
+  saveSearchStats(stats);
+  renderQuickChips();
+}
+
 function isFollowing(personId) {
   return state.following.includes(personId);
 }
@@ -128,6 +156,10 @@ function assetAliases(symbol) {
     "042660.KS": ["한화오션"],
     "003670.KS": ["포스코퓨처엠"],
     "096770.KS": ["sk이노베이션"],
+    "000250.KQ": ["삼천당제약", "삼천당"],
+    "233740.KS": ["kodex 코스닥150 레버리지", "코스닥150 레버리지", "코스닥 레버리지"],
+    "122630.KS": ["kodex 레버리지", "코덱스 레버리지", "레버리지 etf"],
+    "069500.KS": ["kodex 200", "코덱스 200", "코스피200 etf"],
     BTC: ["비트코인", "bitcoin"],
     ETH: ["이더리움", "ethereum"],
     SOL: ["솔라나", "solana"],
@@ -143,6 +175,9 @@ function assetAliases(symbol) {
     META: ["메타", "facebook"],
     AVGO: ["브로드컴", "broadcom"],
     TSLA: ["테슬라", "tesla"],
+    NOK: ["노키아", "nokia"],
+    GEV: ["ge vernova", "ge버노바"],
+    MRVL: ["마벨", "마벨테크놀로지", "marvell"],
     BRK_B: ["brk-b", "berkshire", "버크셔"],
     TSM: ["tsmc", "대만반도체"],
     MSTR: ["microstrategy", "strategy", "마이크로스트래티지"]
@@ -160,7 +195,148 @@ function matchesAsset(symbol, query) {
 }
 
 function displayAsset(symbol) {
-  return symbol.endsWith(".KS") ? assetName(symbol) : symbol;
+  return symbol.endsWith(".KS") || symbol.endsWith(".KQ") ? assetName(symbol) : symbol;
+}
+
+function normalizeSearchText(value = "") {
+  return String(value).toLowerCase().replace(/^@/, "").replace(/\s+/g, "");
+}
+
+function personAliases(person) {
+  const aliases = {
+    serenity: ["aleabitoreddit"],
+    citrini: ["citrini"],
+    arthur_hayes: ["arthurhayes", "cryptohayes", "아서헤이즈"],
+    tom_lee: ["tomlee", "fundstrat", "톰리"],
+    jeon_wonju: ["전원주"],
+    samchundang_grandma: ["삼천당제약할머니", "삼천당할머니", "객장할머니"],
+    jukan: ["jukan", "jukan05"],
+    threadguy: ["threadguy", "notthreadguy"],
+    ansem: ["ansem", "blknoiz06"],
+    michael_saylor: ["michaelsaylor", "saylor", "마이클세일러"],
+    jim_cramer: ["jimcramer", "cramer", "짐크레이머"],
+    jeon_ingu: ["전인구", "전인구경제연구소"],
+    syuka: ["슈카", "슈카월드"],
+    threepro: ["삼프로", "삼프로tv", "3protv"]
+  };
+  return [
+    person.name,
+    person.handle,
+    ...(aliases[person.id] || [])
+  ].filter(Boolean);
+}
+
+function matchesPerson(person, query) {
+  const normalized = normalizeSearchText(query);
+  if (!normalized || normalized.length < 2) return false;
+  return personAliases(person).some((alias) => normalizeSearchText(alias) === normalized);
+}
+
+function summaryPersonButton(call, extra = "") {
+  if (!call?.person) return "<strong>-</strong>";
+  return `
+    <button class="summary-person" data-person-id="${call.person.id}" type="button">
+      ${avatar(call.person, "summary-person-avatar")}
+      <strong>${call.person.name}${extra}</strong>
+    </button>
+  `;
+}
+
+function summaryAssetButton(call) {
+  if (!call?.symbol) return "<strong>원문 확인 필요</strong>";
+  return `
+    <button class="summary-asset" data-symbol="${call.symbol}" type="button">
+      ${assetIcon(call.symbol, "summary-asset-avatar")}
+      <strong>${displayAsset(call.symbol)} ${pctTag(call.returnPct)}</strong>
+    </button>
+  `;
+}
+
+function assetTypeKo(type = "") {
+  const map = {
+    stock: "상장 주식",
+    etf: "상장 ETF",
+    crypto: "크립토 자산",
+    index: "시장 지수",
+    basket: "테마 바스켓"
+  };
+  return map[type] || "추적 자산";
+}
+
+function assetOverviewText(symbol) {
+  const map = {
+    "000660.KS": "SK하이닉스는 DRAM, NAND, HBM 등 메모리 반도체를 생산하는 한국의 대표 반도체 기업입니다. AI 서버와 고성능 컴퓨팅 수요가 커질수록 HBM 공급 역량이 핵심 투자 포인트로 언급됩니다.",
+    "005930.KS": "삼성전자는 반도체, 스마트폰, 디스플레이, 가전 사업을 보유한 한국의 대표 종합 전자 기업입니다. 메모리 업황, 파운드리 경쟁력, AI 반도체 공급망이 주요 관찰 포인트입니다.",
+    NVDA: "Nvidia는 GPU와 AI 가속기 시장을 주도하는 반도체 기업입니다. 데이터센터 AI 수요, CUDA 생태계, 차세대 GPU 로드맵이 투자 의견의 핵심 근거로 자주 언급됩니다.",
+    TSLA: "Tesla는 전기차, 배터리, 에너지 저장, 자율주행과 로보틱스 사업을 전개하는 기업입니다. 차량 판매보다 AI/로보택시/휴머노이드 기대가 투자 의견에 크게 반영됩니다.",
+    MSTR: "Strategy는 기업 보유 자산으로 비트코인을 적극 축적해 온 상장사입니다. 주가 흐름은 본업보다 비트코인 보유량과 자금 조달 전략에 크게 연동됩니다.",
+    BTC: "Bitcoin은 고정된 발행량과 탈중앙 네트워크를 기반으로 한 대표 디지털 자산입니다. 디지털 금, 장기 가치 저장 수단, 기관 자금 유입 여부가 주요 투자 논리입니다.",
+    ETH: "Ethereum은 스마트컨트랙트와 온체인 애플리케이션 생태계의 핵심 네트워크입니다. 토큰화, 스테이블코인, 디파이, L2 확장성이 주요 관찰 포인트입니다.",
+    HYPE: "Hyperliquid는 온체인 파생상품 거래소와 자체 L1 생태계를 중심으로 성장하는 크립토 프로젝트입니다. 거래량, 수수료, 토큰 가치 포착 구조가 핵심 투자 논리입니다.",
+    ZEC: "Zcash는 프라이버시 보호 기능을 중심으로 설계된 크립토 자산입니다. 프라이버시 내러티브 재평가와 공급 구조가 투자 의견의 주요 배경으로 언급됩니다.",
+    NEAR: "NEAR Protocol은 사용성과 확장성을 강조하는 L1 블록체인입니다. AI, 체인 추상화, 개발자 생태계가 주요 투자 포인트로 거론됩니다.",
+    WLD: "Worldcoin은 인간 인증과 디지털 ID를 중심으로 한 크립토 프로젝트입니다. AI 시대 신원 증명, 토큰 유통 구조, 규제 이슈가 함께 관찰됩니다.",
+    SPX: "S&P 500은 미국 대형주 500개 기업으로 구성된 대표 주가지수입니다. 미국 경기, 금리, 기술주 이익 성장, 위험자산 선호도를 함께 반영합니다.",
+    RPI: "Raspberry Pi Holdings는 저가형 싱글보드 컴퓨터와 임베디드 컴퓨팅 수요에 노출된 기업입니다. 엣지 AI, 개발자 하드웨어, 산업용 수요가 투자 논리로 언급됩니다.",
+    AI_INFRA: "AI Infrastructure Basket은 AI 데이터센터, 반도체, 전력, 네트워크 인프라 관련 자산을 묶어 추적하는 테마 바스켓입니다.",
+    CITRINDEX: "Citrini Core Thematic Portfolio는 Citrini Research가 공개적으로 추적하는 핵심 테마 포트폴리오를 앱 안에서 비교용으로 반영한 바스켓입니다."
+  };
+  const asset = state.assets[symbol];
+  return map[symbol] || `${asset?.name || symbol}은 사라했제에서 공개 긍정 의견과 이후 성과를 추적하는 ${assetTypeKo(asset?.type)}입니다. 관련 인플루언서 발언이 누적되면 랭킹, 차트 마커, 상세 의견 목록에 함께 반영됩니다.`;
+}
+
+function assetInfoPanel(symbol, calls = []) {
+  const asset = state.assets[symbol] || {};
+  const scored = calls.filter(isScoredCall);
+  const best = scored.length ? [...scored].sort((a, b) => (b.returnPct || 0) - (a.returnPct || 0))[0] : null;
+  const first = calls.length ? [...calls].sort((a, b) => new Date(a.calledAt) - new Date(b.calledAt))[0] : null;
+  return `
+    <section class="asset-info-panel hidden" data-asset-panel="info">
+      <div class="asset-info-card">
+        ${assetIcon(symbol, "asset-info-logo")}
+        <div>
+          <span>${assetTypeKo(asset.type)}</span>
+          <h3>${asset.name || symbol}</h3>
+          <p>${assetOverviewText(symbol)}</p>
+        </div>
+      </div>
+      <div class="asset-info-grid">
+        <div><span>티커</span><strong>${displayAsset(symbol)}</strong></div>
+        <div><span>거래소/분류</span><strong>${asset.exchange || asset.type || "추적 자산"}</strong></div>
+        <div><span>가격 데이터</span><strong>${asset.yahoo || asset.coingecko || "내부 추적"}</strong></div>
+        <div><span>저장된 긍정 의견</span><strong>${calls.length}개</strong></div>
+        <div><span>가장 좋은 성과</span><strong>${best ? pctTag(best.returnPct) : "아직 없음"}</strong></div>
+        <div><span>첫 의견 시점</span><strong>${first ? first.calledAt : "아직 없음"}</strong></div>
+      </div>
+    </section>
+  `;
+}
+
+function rankMedal(index) {
+  return ["🥇", "🥈", "🥉"][index] || `${index + 1}`;
+}
+
+function opinionRail(calls) {
+  const ranked = [...calls].sort((a, b) => (b.returnPct || -Infinity) - (a.returnPct || -Infinity));
+  return `
+    <div class="opinion-rail">
+      <div class="rail-title">수익률 순위</div>
+      <div class="rail-list">
+        ${ranked.map((call, index) => `
+          <div class="rail-item">
+            <span class="rail-medal">${rankMedal(index)}</span>
+            <button class="rail-person" data-person-id="${call.person?.id || ""}" type="button" aria-label="${call.person?.name} 보기">
+              ${avatar(call.person, "rail-avatar")}
+            </button>
+            <button class="rail-person-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>
+            <button class="rail-detail ${returnClass(call)}" data-call-id="${call.id}" type="button">
+              <strong>${pct(call.returnPct)}</strong>
+            </button>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function categoryKo(category) {
@@ -305,7 +481,9 @@ function positiveReason(call) {
 function statusKo(status) {
   const map = {
     seed_verified: "원문 확인",
-    seed_candidate: "검토 제외",
+    seed_candidate: "검토 후보",
+    candidate: "검토 후보",
+    neutral_reference: "참고 의견",
     live_candidate: "방금 찾음",
     ai_detected: "AI 확인"
   };
@@ -469,7 +647,14 @@ function switchTab(tab) {
   qsa(".tab").forEach((node) => node.classList.toggle("active", node.id === `tab-${tab}`));
   qsa(".bottom-nav button").forEach((node) => node.classList.toggle("active", node.dataset.tab === tab));
   const titles = { search: "검색", feed: "피드", rank: "랭킹", me: "마이" };
-  qs("#page-title").textContent = titles[tab];
+  if (qs("#page-title")) qs("#page-title").textContent = titles[tab];
+  setShareVisible(false);
+}
+
+function setShareVisible(visible) {
+  const button = qs("#share-current");
+  if (!button) return;
+  button.classList.toggle("hidden", !visible);
 }
 
 function renderOrbitalAvatars() {
@@ -489,6 +674,39 @@ function renderOrbitalAvatars() {
       </div>
     `;
   }).join("");
+}
+
+function defaultQuickItems() {
+  const bySymbol = new Map();
+  for (const call of state.calls.filter(isScoredCall)) {
+    const item = bySymbol.get(call.symbol) || { kind: "asset", id: call.symbol, label: displayAsset(call.symbol), count: 0, score: 0 };
+    item.count += 1;
+    item.score += Math.max(0, call.returnPct || 0) + (call.viralScore || 0) / 20;
+    bySymbol.set(call.symbol, item);
+  }
+  return [...bySymbol.values()]
+    .sort((a, b) => b.count - a.count || b.score - a.score)
+    .slice(0, 4);
+}
+
+function renderQuickChips() {
+  const container = qs(".quick-chips");
+  if (!container || !state.calls.length) return;
+  const statsItems = Object.values(loadSearchStats())
+    .sort((a, b) => (b.count || 0) - (a.count || 0) || (b.updatedAt || 0) - (a.updatedAt || 0));
+  const merged = [];
+  const seen = new Set();
+  for (const item of [...statsItems, ...defaultQuickItems()]) {
+    const key = `${item.kind}:${item.id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push(item);
+    if (merged.length >= 4) break;
+  }
+  container.innerHTML = merged.map((item) => `
+    <button data-query="${item.kind === "person" ? item.label : item.id}" type="button">${item.label}</button>
+  `).join("");
+  bindQuickChips();
 }
 
 function ideaRow(call) {
@@ -518,12 +736,15 @@ function ideaRow(call) {
 
 function receiptGroup(title, subtitle, calls, person) {
   const main = calls[0];
+  const personId = person?.id || "";
   return `
     <article class="receipt-group">
       <header>
-        ${avatar(person || { avatar: assetLogo(main.symbol), name: main.symbol })}
+        <button class="receipt-person-avatar" data-person-id="${personId}" type="button" aria-label="${person?.name || "인물"} 보기">
+          ${avatar(person || { avatar: assetLogo(main.symbol), name: main.symbol })}
+        </button>
         <div>
-          <strong>${person?.handle || person?.name || title}</strong>
+          <button class="receipt-person-name" data-person-id="${personId}" type="button">${person?.handle || person?.name || title}</button>
           <span>${sourceLabel(main)} · ${holdingPeriod(main.calledAt)} 전</span>
         </div>
         <button class="copy-mini" data-call-id="${main.id}" type="button">↗</button>
@@ -811,22 +1032,7 @@ function legacyAssetTimeline(calls, symbol) {
           `).join("")}
         </div>
       </div>
-      <div class="opinion-rail">
-        <div class="rail-title">의견이 나온 시점</div>
-        <div class="rail-list">
-          ${sorted.map((call) => `
-            <div class="rail-item">
-              <button class="rail-person" data-person-id="${call.person?.id || ""}" type="button" aria-label="${call.person?.name} 보기">
-                ${avatar(call.person, "rail-avatar")}
-              </button>
-              <button class="rail-person-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>
-              <button class="rail-detail" data-call-id="${call.id}" type="button">
-                <small>${call.calledAt} · 당시 ${price(call.entryPrice, call.currency)}</small>
-              </button>
-            </div>
-          `).join("")}
-        </div>
-      </div>
+      ${opinionRail(sorted)}
     </section>
   `;
 }
@@ -858,22 +1064,7 @@ function assetTimeline(calls, symbol) {
         <strong>${tvSymbol}</strong>
       </div>
       ${chart}
-      <div class="opinion-rail">
-        <div class="rail-title">의견이 나온 시점</div>
-        <div class="rail-list">
-          ${sorted.map((call) => `
-            <div class="rail-item">
-              <button class="rail-person" data-person-id="${call.person?.id || ""}" type="button" aria-label="${call.person?.name} 보기">
-                ${avatar(call.person, "rail-avatar")}
-              </button>
-              <button class="rail-person-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>
-              <button class="rail-detail" data-call-id="${call.id}" type="button">
-                <small>${call.calledAt} · 당시 ${price(call.entryPrice, call.currency)}</small>
-              </button>
-            </div>
-          `).join("")}
-        </div>
-      </div>
+      ${opinionRail(sorted)}
     </section>
   `;
 }
@@ -901,7 +1092,30 @@ function bindCallRows() {
       if (symbol) renderAsset(symbol);
     });
   });
+  qsa("[data-asset-tab]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const tab = button.dataset.assetTab;
+      const root = button.closest(".detail-view") || document;
+      root.querySelectorAll("[data-asset-tab]").forEach((item) => {
+        item.classList.toggle("active", item.dataset.assetTab === tab);
+      });
+      root.querySelectorAll("[data-asset-panel]").forEach((panel) => {
+        panel.classList.toggle("hidden", panel.dataset.assetPanel !== tab);
+      });
+    });
+  });
   qsa(".rail-person, .rail-person-name").forEach((node) => {
+    node.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const person = state.people.find((item) => item.id === node.dataset.personId);
+      if (person) {
+        qs("#share-card").classList.add("hidden");
+        renderPerson(person);
+      }
+    });
+  });
+  qsa(".receipt-person-avatar, .receipt-person-name, .summary-person").forEach((node) => {
     node.addEventListener("click", (event) => {
       event.stopPropagation();
       const person = state.people.find((item) => item.id === node.dataset.personId);
@@ -915,6 +1129,9 @@ function bindCallRows() {
 
 function resetSearchView() {
   state.currentAsset = null;
+  state.currentPersonId = null;
+  state.selectedCall = null;
+  setShareVisible(false);
   qs("#search-empty").classList.remove("hidden");
   qs("#asset-view").classList.add("hidden");
   qs("#person-view").classList.add("hidden");
@@ -959,10 +1176,25 @@ function applyChartDataToCalls(symbol, chart) {
   });
 }
 
+function rerenderActiveViews() {
+  renderLeaderboard();
+  renderFeed();
+  renderQuickChips();
+  if (state.currentAsset) renderAsset(state.currentAsset, { skipChartFetch: true });
+  if (state.currentPersonId) {
+    const person = state.people.find((item) => item.id === state.currentPersonId);
+    if (person) renderPerson(person, { skipChartFetch: true });
+  }
+}
+
 async function fetchAssetChart(symbol, range = state.assetWindow) {
   state.chartData[symbol] ||= {};
   const key = chartCacheKey(symbol, range);
-  if (state.chartData[symbol][range] || state.chartLoading[key]) return;
+  if (state.chartData[symbol][range]) {
+    applyChartDataToCalls(symbol, state.chartData[symbol][range]);
+    return;
+  }
+  if (state.chartLoading[key]) return;
   state.chartLoading[key] = true;
 
   try {
@@ -972,9 +1204,7 @@ async function fetchAssetChart(symbol, range = state.assetWindow) {
     if (!Array.isArray(chart.points) || !chart.points.length) throw new Error("empty chart");
     state.chartData[symbol][range] = chart;
     applyChartDataToCalls(symbol, chart);
-    if (state.currentAsset === symbol) renderAsset(symbol, { skipChartFetch: true });
-    renderLeaderboard();
-    renderFeed();
+    rerenderActiveViews();
   } catch {
     state.chartData[symbol][range] = { failed: true, points: [] };
   } finally {
@@ -982,8 +1212,28 @@ async function fetchAssetChart(symbol, range = state.assetWindow) {
   }
 }
 
+function refreshSymbols(symbols, range = state.assetWindow) {
+  return Promise.allSettled(symbols.map((symbol) => fetchAssetChart(symbol, range)));
+}
+
+function refreshPersonPrices(person, range = state.assetWindow) {
+  const symbols = [...new Set(state.calls
+    .filter((call) => call.personId === person.id || call.person?.id === person.id)
+    .map((call) => call.symbol)
+    .filter(Boolean))];
+  return refreshSymbols(symbols, range);
+}
+
+function refreshAllPrices(range = state.assetWindow) {
+  const symbols = [...new Set(state.calls.map((call) => call.symbol).filter(Boolean))];
+  return refreshSymbols(symbols, range);
+}
+
 function renderAsset(symbol, options = {}) {
   state.currentAsset = symbol;
+  state.currentPersonId = null;
+  state.selectedCall = null;
+  setShareVisible(false);
   const calls = state.calls
     .filter((call) => call.symbol.toLowerCase() === symbol.toLowerCase() || assetName(call.symbol).toLowerCase().includes(symbol.toLowerCase()))
     .sort((a, b) => new Date(b.calledAt) - new Date(a.calledAt));
@@ -1010,14 +1260,17 @@ function renderAsset(symbol, options = {}) {
         <div><span>추적 상태</span><strong>${asset.exchange || asset.type || "자산"} · 검색 가능</strong></div>
       </div>
       <div class="tabs-line">
-        <button class="active">긍정 의견 (0)</button>
-        <button>정보</button>
+        <button class="active" data-asset-tab="opinions" type="button">긍정 의견 (0)</button>
+        <button data-asset-tab="info" type="button">정보</button>
       </div>
-      <section class="empty-state inline">
-        <h3>아직 검증해 저장한 의견은 없어요</h3>
-        <p>운영 데이터에 출처가 확인된 의견을 추가하면 이 종목의 랭킹과 차트 마커에 바로 반영됩니다.</p>
-      </section>
-      ${internalTimelineChart([], symbol)}
+      <div data-asset-panel="opinions">
+        <section class="empty-state inline">
+          <h3>아직 검증해 저장한 의견은 없어요</h3>
+          <p>운영 데이터에 출처가 확인된 의견을 추가하면 이 종목의 랭킹과 차트 마커에 바로 반영됩니다.</p>
+        </section>
+        ${internalTimelineChart([], symbol)}
+      </div>
+      ${assetInfoPanel(symbol, [])}
     `;
     qs("#asset-view .back-button").addEventListener("click", resetSearchView);
     bindCallRows();
@@ -1030,6 +1283,8 @@ function renderAsset(symbol, options = {}) {
   const rankingCalls = scoredCalls.length ? scoredCalls : calls;
   const best = [...rankingCalls].sort((a, b) => (b.returnPct || 0) - (a.returnPct || 0))[0];
   const first = [...rankingCalls].sort((a, b) => new Date(a.calledAt) - new Date(b.calledAt))[0];
+  state.selectedCall = best || null;
+  setShareVisible(Boolean(state.selectedCall));
   qs("#search-empty").classList.add("hidden");
   qs("#person-view").classList.add("hidden");
   qs("#asset-view").classList.remove("hidden");
@@ -1047,15 +1302,18 @@ function renderAsset(symbol, options = {}) {
       </div>
     </div>
     <div class="summary-pills">
-      <div><span>가장 성과가 좋았던 사람</span><strong>${best.person?.name} ${pctTag(best.returnPct)}</strong></div>
-      <div><span>가장 먼저 긍정 의견을 낸 사람</span><strong>${first.person?.name} · ${first.calledAt}</strong></div>
+      <div><span>가장 성과가 좋았던 사람</span>${summaryPersonButton(best, ` ${pctTag(best.returnPct)}`)}</div>
+      <div><span>가장 먼저 긍정 의견을 낸 사람</span>${summaryPersonButton(first, ` · ${first.calledAt}`)}</div>
     </div>
     <div class="tabs-line">
-      <button class="active">긍정 의견 (${calls.length})</button>
-      <button>정보</button>
+      <button class="active" data-asset-tab="opinions" type="button">긍정 의견 (${calls.length})</button>
+      <button data-asset-tab="info" type="button">정보</button>
     </div>
-    ${assetTimeline(calls, best.symbol)}
-    ${calls.map((call) => receiptGroup(`${assetName(call.symbol)}를 좋게 본 기록`, `${call.symbol}`, [call], call.person)).join("")}
+    <div data-asset-panel="opinions">
+      ${assetTimeline(calls, best.symbol)}
+      ${calls.map((call) => receiptGroup(`${assetName(call.symbol)}를 좋게 본 기록`, `${call.symbol}`, [call], call.person)).join("")}
+    </div>
+    ${assetInfoPanel(best.symbol, calls)}
   `;
   qs("#asset-view .back-button").addEventListener("click", resetSearchView);
   bindCallRows();
@@ -1063,8 +1321,11 @@ function renderAsset(symbol, options = {}) {
   return true;
 }
 
-function renderPerson(person) {
+function renderPerson(person, options = {}) {
   state.currentAsset = null;
+  state.currentPersonId = person.id;
+  state.selectedCall = null;
+  setShareVisible(false);
   const ownCalls = state.calls
     .filter((call) => call.personId === person.id || call.person?.id === person.id)
     .map((call) => ({ ...call, person }));
@@ -1076,7 +1337,7 @@ function renderPerson(person) {
     wins: scoredCalls.filter((call) => (call.returnPct || 0) > 0).length,
     losses: scoredCalls.filter((call) => (call.returnPct || 0) < 0).length,
     best: [...scoredCalls].sort((a, b) => (b.returnPct || 0) - (a.returnPct || 0))[0],
-    worst: [...scoredCalls].sort((a, b) => (a.returnPct || 0) - (b.returnPct || 0))[0],
+    worst: [...scoredCalls].filter((call) => (call.returnPct || 0) < 0).sort((a, b) => (a.returnPct || 0) - (b.returnPct || 0))[0],
     avg: scoredCalls.length ? pnl / scoredCalls.length : 0
   };
   const displayCalls = [...ownCalls].sort((a, b) => {
@@ -1084,8 +1345,8 @@ function renderPerson(person) {
     return (b.returnPct || 0) - (a.returnPct || 0);
   });
   if (!displayCalls.length) return false;
-  const bestLabel = stats.best ? `${displayAsset(stats.best.symbol)} ${pctTag(stats.best.returnPct)}` : "원문 확인 필요";
-  const worstLabel = stats.worst ? `${displayAsset(stats.worst.symbol)} ${pctTag(stats.worst.returnPct)}` : "원문 확인 필요";
+  state.selectedCall = displayCalls.find(isScoredCall) || displayCalls[0] || null;
+  setShareVisible(Boolean(state.selectedCall));
   qs("#search-empty").classList.add("hidden");
   qs("#asset-view").classList.add("hidden");
   qs("#person-view").classList.remove("hidden");
@@ -1118,8 +1379,8 @@ function renderPerson(person) {
       </div>
     </div>
     <div class="performance-panel slim">
-      <div><span>가장 좋았던 의견</span><strong>${bestLabel}</strong></div>
-      <div><span>아쉬웠던 의견</span><strong>${worstLabel}</strong></div>
+      <div><span>가장 좋았던 의견</span>${summaryAssetButton(stats.best)}</div>
+      ${stats.worst ? `<div><span>아쉬웠던 의견</span>${summaryAssetButton(stats.worst)}</div>` : ""}
     </div>
     ${receiptGroup(`${person.name}이 긍정적으로 본 아이디어`, person.handle, displayCalls, person)}
   `;
@@ -1129,18 +1390,22 @@ function renderPerson(person) {
     renderPerson(person);
   });
   bindCallRows();
+  if (!options.skipChartFetch) refreshPersonPrices(person);
   return true;
 }
 
 function renderUnknownSearch(query) {
+  state.currentPersonId = null;
+  state.selectedCall = null;
+  setShareVisible(false);
   qs("#search-empty").classList.add("hidden");
   qs("#asset-view").classList.add("hidden");
   qs("#person-view").classList.add("hidden");
   qs("#search-live").innerHTML = `
     <section class="confirm-search-card">
-      <span>저장된 데이터 없음</span>
+      <span>아직 등록되지 않았어요</span>
       <h2>${query}</h2>
-      <p>지금 검색은 검증해 저장해둔 인물과 종목만 조회돼요. 랭킹에 반영하려면 먼저 운영 데이터에 추가해야 합니다.</p>
+      <p>아직 등록이 되지 않은 건이에요. 등록을 원하시면 조금만 기다려주세요!</p>
       <div class="confirm-actions">
         <button id="cancel-live-search" type="button">다시 검색하기</button>
       </div>
@@ -1192,7 +1457,7 @@ function bindRankingTabs() {
 }
 
 function renderFeed() {
-  const sortedCalls = state.calls.filter(isScoredCall).sort((a, b) => {
+  const sortedCalls = state.calls.sort((a, b) => {
     const dateDiff = new Date(b.calledAt).getTime() - new Date(a.calledAt).getTime();
     if (dateDiff) return dateDiff;
     return (b.viralScore || 0) - (a.viralScore || 0);
@@ -1426,11 +1691,7 @@ function showIdeaDetail(call) {
 function runSearch(query) {
   const lower = query.toLowerCase();
   const symbol = Object.keys(state.assets).find((item) => matchesAsset(item, lower));
-  const person = state.people.find((item) =>
-    item.name.toLowerCase().includes(lower) ||
-    item.handle?.toLowerCase().includes(lower) ||
-    lower.includes(item.handle?.toLowerCase().replace("@", ""))
-  );
+  const person = state.people.find((item) => matchesPerson(item, query));
 
   if (symbol) {
     const rendered = renderAsset(symbol);
@@ -1438,22 +1699,34 @@ function runSearch(query) {
       renderUnknownSearch(`${assetName(symbol)} (${symbol})`);
       return;
     }
-  } else if (person) renderPerson(person);
-  else {
-    renderUnknownSearch(query);
+    recordSearchHit("asset", symbol, displayAsset(symbol));
+    qs("#search-live").innerHTML = "";
     return;
   }
 
+  if (person) {
+    renderPerson(person);
+    recordSearchHit("person", person.id, person.name);
+    qs("#search-live").innerHTML = "";
+    return;
+  }
+
+  renderUnknownSearch(query);
+
   qs("#search-live").innerHTML = "";
 }
+
 async function bootstrap() {
   const response = await fetch("/api/bootstrap");
   const data = await response.json();
   state.people = data.people;
   state.assets = data.assets;
   state.calls = data.calls;
-  state.selectedCall = state.calls[0];
+  state.selectedCall = null;
+  setShareVisible(false);
+  await refreshAllPrices();
   renderOrbitalAvatars();
+  renderQuickChips();
   renderLeaderboard();
   renderFeed();
   renderFollowing();
@@ -1469,12 +1742,16 @@ qs("#search-form").addEventListener("submit", (event) => {
   if (query) runSearch(query);
 });
 
-qsa("[data-query]").forEach((button) => {
-  button.addEventListener("click", () => {
-    qs("#search-input").value = button.dataset.query;
-    runSearch(button.dataset.query);
+function bindQuickChips() {
+  qsa("[data-query]").forEach((button) => {
+    button.addEventListener("click", () => {
+      qs("#search-input").value = button.dataset.query;
+      runSearch(button.dataset.query);
+    });
   });
-});
+}
+
+bindQuickChips();
 
 qs("#share-current").addEventListener("click", () => {
   if (state.selectedCall) showShare(state.selectedCall);

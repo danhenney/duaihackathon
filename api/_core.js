@@ -14,21 +14,39 @@ export const priceFallbacks = {
   "000660.KS": { entry: 20000, current: 2382000, currency: "KRW" },
   SPX: { entry: 6880, current: 7023, currency: "USD" },
   NVDA: { entry: 212.08, current: 209.05, currency: "USD" },
-  TSLA: { entry: 407.36, current: 184.2, currency: "USD" },
+  TSLA: { entry: 443.3, current: 402.97, currency: "USD" },
   WBD: { entry: 24.78, current: 10.92, currency: "USD" },
+  NOK: { entry: 15.28, current: 14.05, currency: "USD" },
+  GEV: { entry: 950.54, current: 1033.09, currency: "USD" },
+  MRVL: { entry: 75.68, current: 293.93, currency: "USD" },
   "005930.KS": { entry: 71300, current: 79200, currency: "KRW" },
   "035420.KS": { entry: 218000, current: 204500, currency: "KRW" },
   "035720.KS": { entry: 121000, current: 48900, currency: "KRW" },
   "005380.KS": { entry: 102000, current: 238500, currency: "KRW" },
+  "000250.KQ": { entry: 529000, current: 276500, currency: "KRW" },
+  "233740.KS": { entry: 18995, current: 13260, currency: "KRW" },
+  "122630.KS": { entry: 78000, current: 219385, currency: "KRW" },
+  "069500.KS": { entry: 78290, current: 142055, currency: "KRW" },
   CITRINDEX: { entry: 100, current: 200.57, currency: "index" },
   AI_INFRA: { entry: 100, current: 128.4, currency: "basket" }
 };
 
-export function enrichCall(call) {
+const latestPriceCache = new Map();
+
+function latestFromMap(symbol, latestPrices = {}) {
+  const latest = latestPrices[symbol];
+  if (!latest) return null;
+  const currentPrice = Number(latest.currentPrice);
+  return Number.isFinite(currentPrice) ? { ...latest, currentPrice } : null;
+}
+
+export function enrichCall(call, latestPrices = {}) {
   const person = people.find((item) => item.id === call.personId);
   const asset = assets[call.symbol] || { name: call.symbol, type: "unknown" };
   const entry = Number(call.entryPrice);
-  const current = Number(call.currentPrice);
+  const latest = latestFromMap(call.symbol, latestPrices);
+  const fallback = priceFallbacks[call.symbol];
+  const current = Number(latest?.currentPrice ?? fallback?.current ?? call.currentPrice);
   const canScore = ["seed_verified", "ai_detected"].includes(call.status);
   const returnPct = canScore && Number.isFinite(entry) && Number.isFinite(current) && entry > 0
     ? ((current - entry) / entry) * 100
@@ -38,9 +56,37 @@ export function enrichCall(call) {
     ...call,
     person,
     asset,
+    currentPrice: Number.isFinite(current) ? current : call.currentPrice,
+    currency: latest?.currency || call.currency || fallback?.currency,
     returnPct,
     confidence: call.status === "seed_verified" ? 0.92 : 0.72
   };
+}
+
+export async function resolveLatestPrices(calls = []) {
+  const symbols = [...new Set(calls.map((call) => call.symbol).filter(Boolean))];
+  const entries = await Promise.all(symbols.map(async (symbol) => {
+    const cached = latestPriceCache.get(symbol);
+    if (cached && Date.now() - cached.cachedAt < 3 * 60 * 1000) return [symbol, cached.value];
+    try {
+      const chart = await fetchYahooChart(symbol, "1m");
+      const value = {
+        currentPrice: chart.currentPrice,
+        currency: chart.currency
+      };
+      latestPriceCache.set(symbol, { value, cachedAt: Date.now() });
+      return [symbol, value];
+    } catch {
+      const fallback = priceFallbacks[symbol];
+      return [symbol, fallback ? { currentPrice: fallback.current, currency: fallback.currency } : null];
+    }
+  }));
+  return Object.fromEntries(entries.filter(([, value]) => value && Number.isFinite(Number(value.currentPrice))));
+}
+
+export async function enrichCalls(calls = []) {
+  const latestPrices = await resolveLatestPrices(calls);
+  return calls.map((call) => enrichCall(call, latestPrices));
 }
 
 export function searchLocal(query = "") {
@@ -83,13 +129,19 @@ export function normalizeModelSymbol(symbol = "") {
     MICROSTRATEGY: "MSTR",
     NVIDIA: "NVDA",
     TESLA: "TSLA",
+    NOKIA: "NOK",
+    MARVELL: "MRVL",
     HYPERLIQUID: "HYPE",
     ZCASH: "ZEC",
     "SK HYNIX": "000660.KS",
     "SK하이닉스": "000660.KS",
     하이닉스: "000660.KS",
     삼성전자: "005930.KS",
-    "LG전자": "066570.KS"
+    "LG전자": "066570.KS",
+    삼천당제약: "000250.KQ",
+    "KODEX 코스닥150 레버리지": "233740.KS",
+    "KODEX 레버리지": "122630.KS",
+    "KODEX 200": "069500.KS"
   };
   return aliases[raw] || raw;
 }
@@ -110,10 +162,17 @@ export function extractSymbols(text = "") {
     WLD: ["worldcoin", "wld"],
     NVDA: ["nvidia", "nvda", "blackwell", "rubin"],
     TSLA: ["tesla", "tsla"],
+    NOK: ["nokia", "nok"],
+    GEV: ["ge vernova", "gev"],
+    MRVL: ["marvell", "mrvl"],
     SPX: ["s&p 500", "spx"],
     "000660.KS": ["sk hynix", "sk하이닉스", "하이닉스", "hynix", "hbm"],
     "005930.KS": ["samsung electronics", "삼성전자", "samsung", "hbm"],
-    "066570.KS": ["lg electronics", "lg전자", "엘지전자"]
+    "066570.KS": ["lg electronics", "lg전자", "엘지전자"],
+    "000250.KQ": ["삼천당제약", "samchundang"],
+    "233740.KS": ["kodex 코스닥150 레버리지", "코스닥150 레버리지"],
+    "122630.KS": ["kodex 레버리지", "코덱스 레버리지"],
+    "069500.KS": ["kodex 200", "코덱스 200"]
   };
   const aliasMatches = Object.entries(aliases)
     .filter(([, words]) => words.some((word) => lower.includes(word.toLowerCase())))
@@ -157,8 +216,7 @@ export function fallbackEntryPrice(symbol) {
 }
 
 export function fallbackCurrentPrice(symbol) {
-  const call = seedCalls.find((item) => item.symbol === symbol);
-  return call?.currentPrice ?? priceFallbacks[symbol]?.current ?? null;
+  return priceFallbacks[symbol]?.current ?? seedCalls.find((item) => item.symbol === symbol)?.currentPrice ?? null;
 }
 
 export function yahooSymbolFor(symbol) {
@@ -743,7 +801,9 @@ export async function liveSearch(query, options = {}) {
 
   const classified = await classifyCandidatesWithClaude(deduped);
   const priced = await resolveCandidatePrices(classified);
-  const calls = priced.flatMap(candidateToCalls).filter((call) => call.status !== "live_candidate");
+  const calls = priced.flatMap(candidateToCalls).map((call) => (
+    call.status === "live_candidate" ? { ...call, status: "candidate" } : call
+  ));
   return {
     mode,
     candidates: priced,

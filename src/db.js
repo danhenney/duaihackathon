@@ -4,7 +4,43 @@ let sqlClient;
 let schemaReady;
 
 export function hasDatabase() {
-  return Boolean(process.env.DATABASE_URL);
+  return hasUpstash() || Boolean(process.env.DATABASE_URL);
+}
+
+function hasUpstash() {
+  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+}
+
+async function upstashCommand(command) {
+  const response = await fetch(process.env.UPSTASH_REDIS_REST_URL, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify(command)
+  });
+  if (!response.ok) throw new Error(`Upstash ${command?.[0] || "command"} failed: ${response.status}`);
+  const payload = await response.json();
+  if (payload.error) throw new Error(payload.error);
+  return payload.result;
+}
+
+async function upstashPipeline(commands) {
+  if (!commands.length) return [];
+  const response = await fetch(`${process.env.UPSTASH_REDIS_REST_URL}/pipeline`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${process.env.UPSTASH_REDIS_REST_TOKEN}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify(commands)
+  });
+  if (!response.ok) throw new Error(`Upstash pipeline failed: ${response.status}`);
+  const payload = await response.json();
+  const errors = payload.filter((item) => item?.error);
+  if (errors.length) throw new Error(errors[0].error);
+  return payload.map((item) => item.result);
 }
 
 function sql() {
@@ -66,6 +102,21 @@ function compactCall(call) {
 }
 
 export async function getStoredCalls() {
+  if (hasUpstash()) {
+    try {
+      const ids = await upstashCommand(["ZREVRANGE", "receipt:calls:index", 0, 999]);
+      if (!Array.isArray(ids) || !ids.length) return [];
+      const keys = ids.map((id) => `receipt:call:${id}`);
+      const values = await upstashCommand(["MGET", ...keys]);
+      return values
+        .filter(Boolean)
+        .map((value) => JSON.parse(value));
+    } catch (error) {
+      console.warn(`Upstash read skipped: ${error.message}`);
+      return [];
+    }
+  }
+
   if (!hasDatabase()) return [];
   try {
     const db = sql();
@@ -84,12 +135,39 @@ export async function getStoredCalls() {
 }
 
 export async function saveLiveSearchResult({ query = "", candidates = [], calls = [] } = {}) {
+  if (hasUpstash()) {
+    try {
+      const now = Date.now();
+      const scorableCalls = calls
+        .filter((call) => ["ai_detected", "seed_verified", "seed_candidate", "candidate", "neutral_reference"].includes(call.status))
+        .map(compactCall);
+      const commands = [];
+
+      for (const candidate of candidates) {
+        if (!candidate.sourceUrl) continue;
+        commands.push(["SET", `receipt:candidate:${candidate.sourceUrl}`, JSON.stringify({ ...candidate, query })]);
+        commands.push(["ZADD", "receipt:candidates:index", now, candidate.sourceUrl]);
+      }
+
+      for (const call of scorableCalls) {
+        commands.push(["SET", `receipt:call:${call.id}`, JSON.stringify(call)]);
+        commands.push(["ZADD", "receipt:calls:index", new Date(call.calledAt || now).getTime(), call.id]);
+      }
+
+      await upstashPipeline(commands);
+      return { savedCalls: scorableCalls.length, savedCandidates: candidates.length };
+    } catch (error) {
+      console.warn(`Upstash write skipped: ${error.message}`);
+      return { savedCalls: 0, savedCandidates: 0, error: error.message };
+    }
+  }
+
   if (!hasDatabase()) return { savedCalls: 0, savedCandidates: 0 };
   try {
     const db = sql();
     await ensureSchema();
     const scorableCalls = calls
-      .filter((call) => call.status === "ai_detected")
+      .filter((call) => ["ai_detected", "seed_verified", "seed_candidate", "candidate", "neutral_reference"].includes(call.status))
       .map(compactCall);
 
     for (const candidate of candidates) {
