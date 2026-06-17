@@ -1,0 +1,98 @@
+﻿<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Receipts</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="phone-shell">
+      <header class="app-header">
+        <div>
+          <p class="ticker">RECEIPTS.TRADE</p>
+          <h1 id="page-title">검색</h1>
+        </div>
+        <button id="share-current" class="icon-button" aria-label="공유">↗</button>
+      </header>
+
+      <main>
+        <section id="tab-search" class="tab active">
+          <div id="search-empty" class="search-empty">
+            <div id="orbital-avatars" class="orbital-avatars" aria-hidden="true"></div>
+            <div class="search-copy">
+              <h2>그 말, 지금 얼마나 맞았을까?</h2>
+              <p>인물을 검색하면 그 사람이 공개적으로 낸 긍정 의견의 성과를 볼 수 있어요. 종목을 검색하면 누가 먼저 알아봤고, 누가 가장 잘 맞혔는지 바로 비교할 수 있습니다.</p>
+              <form id="search-form" class="search-panel hero-search">
+                <input id="search-input" placeholder="인물 또는 종목 검색" autocomplete="off">
+                <button type="submit">검색</button>
+              </form>
+              <div class="quick-chips">
+                <button data-query="@aleabitoreddit RPI">RPI</button>
+                <button data-query="@fundstrat BTC ETH">BTC</button>
+                <button data-query="@CryptoHayes HYPE ZEC NEAR">HYPE</button>
+                <button data-query="하이닉스">하이닉스</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="asset-view" class="detail-view hidden"></div>
+          <div id="person-view" class="detail-view hidden"></div>
+          <div id="search-live" class="live-stack"></div>
+        </section>
+
+        <section id="tab-feed" class="tab">
+          <div class="notice">최근 공개 긍정 의견</div>
+          <div id="activity-feed" class="activity-feed"></div>
+        </section>
+
+        <section id="tab-rank" class="tab">
+          <div class="segmented">
+            <button class="active" data-window="24h">24시간</button>
+            <button data-window="7d">7일</button>
+            <button data-window="30d">30일</button>
+            <button data-window="all">전체</button>
+          </div>
+          <div class="rank-card">
+            <div class="brand-dot">R</div>
+            <div>
+              <span>내 기록</span>
+              <strong># -</strong>
+            </div>
+            <em>준비 중</em>
+          </div>
+          <h2 class="section-title">누가 제일 잘 맞혔을까?</h2>
+          <div id="leaderboard" class="leaderboard"></div>
+        </section>
+
+        <section id="tab-me" class="tab">
+          <div id="following-list" class="following-list"></div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="active" data-tab="search" aria-label="검색">
+          <span>⌕</span>
+          <small>검색</small>
+        </button>
+        <button data-tab="feed" aria-label="피드">
+          <span>◇</span>
+          <small>피드</small>
+        </button>
+        <button data-tab="rank" aria-label="랭킹">
+          <span>☷</span>
+          <small>랭킹</small>
+        </button>
+        <button data-tab="me" aria-label="마이 정보">
+          <span>●</span>
+          <small>마이</small>
+        </button>
+      </nav>
+    </div>
+
+    <div id="share-card" class="share-card hidden"></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

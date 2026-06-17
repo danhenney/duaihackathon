@@ -1,0 +1,13 @@
+{
+  "name": "receipts-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "postgres": "^3.4.9"
+  }
+}
