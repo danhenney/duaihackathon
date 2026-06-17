@@ -318,7 +318,7 @@ export async function fetchYahooChart(symbol, range = "all") {
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 ReceiptsTrade/0.1"
+        "user-agent": "Mozilla/5.0 Sarahatje/0.1"
       }
     });
     if (!response.ok) throw new Error(`Yahoo chart failed: ${response.status}`);
@@ -390,7 +390,7 @@ export async function tryDuckDuckGo(query) {
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 ReceiptsHackathonBot/0.1"
+        "user-agent": "Mozilla/5.0 SarahatjeHackathonBot/0.1"
       }
     });
     if (!response.ok) return [];

@@ -113,10 +113,39 @@ function assetAliases(symbol) {
     "035720.KS": ["카카오", "kakao"],
     "005380.KS": ["현대차", "hyundai"],
     "066570.KS": ["lg전자", "엘지전자", "lg electronics", "lge"],
+    "373220.KS": ["lg에너지솔루션", "lg엔솔", "엘지엔솔"],
+    "207940.KS": ["삼성바이오로직스", "삼바"],
+    "005490.KS": ["posco", "포스코", "포스코홀딩스"],
+    "068270.KS": ["셀트리온", "celltrion"],
+    "012330.KS": ["현대모비스", "mobis"],
+    "105560.KS": ["kb금융", "kb financial"],
+    "055550.KS": ["신한지주", "신한금융"],
+    "051910.KS": ["lg화학", "엘지화학"],
+    "006400.KS": ["삼성sdi"],
+    "028260.KS": ["삼성물산"],
+    "086790.KS": ["하나금융", "하나금융지주"],
+    "034020.KS": ["두산에너빌리티", "두산중공업"],
+    "042660.KS": ["한화오션"],
+    "003670.KS": ["포스코퓨처엠"],
+    "096770.KS": ["sk이노베이션"],
     BTC: ["비트코인", "bitcoin"],
     ETH: ["이더리움", "ethereum"],
+    SOL: ["솔라나", "solana"],
+    XRP: ["리플", "ripple"],
+    DOGE: ["도지", "도지코인", "dogecoin"],
+    ADA: ["에이다", "cardano"],
+    LINK: ["체인링크", "chainlink"],
     NVDA: ["엔비디아", "nvidia"],
-    TSLA: ["테슬라", "tesla"]
+    AAPL: ["애플", "apple"],
+    MSFT: ["마이크로소프트", "마소", "microsoft"],
+    GOOGL: ["구글", "알파벳", "google", "alphabet"],
+    AMZN: ["아마존", "amazon"],
+    META: ["메타", "facebook"],
+    AVGO: ["브로드컴", "broadcom"],
+    TSLA: ["테슬라", "tesla"],
+    BRK_B: ["brk-b", "berkshire", "버크셔"],
+    TSM: ["tsmc", "대만반도체"],
+    MSTR: ["microstrategy", "strategy", "마이크로스트래티지"]
   };
   return aliases[symbol] || [];
 }
@@ -145,7 +174,13 @@ function categoryKo(category) {
     "Crypto Media": "크립토 미디어",
     "Crypto Trader": "크립토 트레이더",
     "Bitcoin Executive": "비트코인 경영자",
-    "TV Host": "방송 진행자"
+    "TV Host": "방송 진행자",
+    "YouTube Investor": "투자 유튜브",
+    "Finance YouTube": "경제 유튜브",
+    "Finance Media": "경제 미디어",
+    "Crypto Telegram": "크립토 텔레그램",
+    "Macro Media": "매크로 미디어",
+    "Options Flow": "옵션 플로우"
   };
   return map[category] || category;
 }
@@ -158,7 +193,10 @@ function bioKo(person) {
     tom_lee: "주식과 크립토 시장에 대한 공개적인 강세 전망으로 알려진 Fundstrat 전략가입니다.",
     jeon_wonju: "SK하이닉스 장기 보유 사례로 알려진 한국 연예인 투자자입니다.",
     jim_cramer: "CNBC에서 주식 의견을 공개적으로 제시하는 미국 방송 진행자입니다.",
-    michael_saylor: "비트코인 장기 보유와 공개 매수 발언으로 알려진 경영자입니다."
+    michael_saylor: "비트코인 장기 보유와 공개 매수 발언으로 알려진 경영자입니다.",
+    jeon_ingu: "전인구경제연구소를 운영하는 한국 투자 유튜브 인플루언서입니다.",
+    syuka: "경제와 시장 이슈를 대중적으로 해설하는 한국 경제 유튜브 채널입니다.",
+    threepro: "국내 주식과 매크로를 다루는 한국 경제/투자 미디어입니다."
   };
   return map[person.id] || person.bio || "";
 }
@@ -196,6 +234,12 @@ function quoteKo(call) {
     verified_ansem_hype_fair_value_2024_12_11: "No bias but fair value for $HYPE is around 500B from the exchange alone.",
     verified_ansem_hype_l1_2025_06_03: "Hyperliquid update #4: core business is enshrined within the L1.",
     verified_saylor_btc_2024_02_26: "MicroStrategy acquired an additional 3,000 BTC at an average price of $51,813 per bitcoin.",
+    verified_saylor_btc_digital_capital_2026_06_16: "Bitcoin has already won as Digital Capital.",
+    verified_saylor_btc_yield_money_2026_06_16: "Bitcoin-backed credit makes that possible. The next wave is built on Bitcoin.",
+    verified_saylor_btc_strategy_acquired_2026_06_15: "Strategy has acquired 1,587 BTC for $100 million to increase our $BTC Reserve to ₿846,842.",
+    verified_saylor_btc_capitalism_2026_06_15: "Digital Capital is the foundation for Digital Credit, Digital Money, Digital Yield, Digital Equity.",
+    verified_saylor_btc_stacking_2026_06_12: "I haven’t sold a sat. Strategy is still stacking.",
+    verified_saylor_btc_per_share_2026_06_11: "BTC per Share measures Bitcoin intensity and long-term equity upside.",
     verified_jim_cramer_tsla_buy_2026_05: "Jim Cramer: Tesla is a buy after hearing what Elon Musk said on the earnings call.",
     verified_jukan_hbm4_samsung_hynix_2026_03: "NVIDIA's Vera Rubin to use only Samsung and SK Hynix HBM4.",
     verified_jukan_hbm4_hynix_2026_03: "NVIDIA's Vera Rubin to use only Samsung and SK Hynix HBM4.",
@@ -225,6 +269,12 @@ function reasonKo(call) {
     verified_ansem_hype_fair_value_2024_12_11: "Hyperliquid의 거래소 가치만으로도 HYPE fair value가 훨씬 높을 수 있다고 주장했습니다.",
     verified_ansem_hype_l1_2025_06_03: "Hyperliquid는 거래소 핵심 사업이 L1 안에 내재되어 있어 다른 L1 대비 가치 포착이 좋다고 설명했습니다.",
     verified_saylor_btc_2024_02_26: "Strategy의 추가 BTC 매수를 공개하며 기업 차원의 장기 비트코인 축적을 이어갔습니다.",
+    verified_saylor_btc_digital_capital_2026_06_16: "비트코인이 디지털 자본으로 이미 승리했고 전통 신용·머니마켓 자본이 유입될 수 있다고 표현했습니다.",
+    verified_saylor_btc_yield_money_2026_06_16: "비트코인 기반 신용이 수익을 내는 디지털 머니의 다음 물결이 될 수 있다고 설명했습니다.",
+    verified_saylor_btc_strategy_acquired_2026_06_15: "Strategy의 추가 BTC 매수와 총 보유량 증가를 공개하며 비트코인 축적을 계속 확인했습니다.",
+    verified_saylor_btc_capitalism_2026_06_15: "비트코인을 디지털 자본의 기반으로 보고 신용·머니·수익·주식형 상품 확장을 제시했습니다.",
+    verified_saylor_btc_stacking_2026_06_12: "비트코인을 팔지 않았고 Strategy가 계속 축적 중이라고 밝히며 보유 지속 의견을 남겼습니다.",
+    verified_saylor_btc_per_share_2026_06_11: "BTC per share와 BTC yield를 장기 주식 업사이드와 연결해 긍정 지표로 설명했습니다.",
     verified_jim_cramer_tsla_buy_2026_05: "머스크의 earnings call 발언을 들은 뒤 Tesla를 buy라고 평가한 CNBC 클립입니다.",
     verified_jukan_hbm4_samsung_hynix_2026_03: "NVIDIA 차세대 AI 가속기에 삼성전자와 SK하이닉스 HBM4가 들어간다는 공급망 수혜를 언급했습니다.",
     verified_jukan_hbm4_hynix_2026_03: "SK하이닉스가 NVIDIA Rubin HBM4 공급망에 포함된다는 점을 긍정적인 이벤트로 포착했습니다.",
@@ -530,7 +580,7 @@ function timelineWindowStart(windowKey, endTime) {
   return days ? endTime - days * 86400000 : null;
 }
 
-function timelineModel(calls, windowKey = state.assetWindow) {
+function timelineModel(calls, windowKey = state.assetWindow, symbol = calls[0]?.symbol) {
   const sorted = [...calls].sort((a, b) => new Date(a.calledAt) - new Date(b.calledAt));
   const latest = sorted[sorted.length - 1];
   const endTime = Math.max(Date.now(), new Date(latest?.calledAt || Date.now()).getTime());
@@ -542,7 +592,7 @@ function timelineModel(calls, windowKey = state.assetWindow) {
   const effectiveCalls = visibleCalls.length ? visibleCalls : sorted.slice(-1);
   const startTime = windowStart || new Date(sorted[0]?.calledAt || Date.now()).getTime();
   const currentPrice = Number(latest?.currentPrice);
-  const chart = state.chartData[sorted[0]?.symbol]?.[windowKey];
+  const chart = state.chartData[symbol]?.[windowKey];
   const liveEvents = (chart?.points || []).map((point) => ({
     time: Number(point.time),
     price: Number(point.close)
@@ -641,7 +691,7 @@ function shouldUseTradingView(symbol) {
 }
 
 function internalTimelineChart(calls, symbol) {
-  const model = timelineModel(calls);
+  const model = timelineModel(calls, state.assetWindow, symbol);
   const path = chartPath(model.points);
   const gradientId = `timeline-fill-${symbol.replace(/\W/g, "")}`;
   const ranges = [
@@ -937,6 +987,43 @@ function renderAsset(symbol, options = {}) {
   const calls = state.calls
     .filter((call) => call.symbol.toLowerCase() === symbol.toLowerCase() || assetName(call.symbol).toLowerCase().includes(symbol.toLowerCase()))
     .sort((a, b) => new Date(b.calledAt) - new Date(a.calledAt));
+  const asset = state.assets[symbol];
+  if (!calls.length && asset) {
+    qs("#search-empty").classList.add("hidden");
+    qs("#person-view").classList.add("hidden");
+    qs("#asset-view").classList.remove("hidden");
+    qs("#asset-view").innerHTML = `
+      <div class="asset-hero">
+        <button class="back-button" type="button">‹</button>
+        ${assetIcon(symbol, "coin-icon")}
+        <div>
+          <h2>${displayAsset(symbol)}</h2>
+          <p>${symbol.endsWith(".KS") ? symbol : assetName(symbol)}</p>
+        </div>
+        <div class="asset-price">
+          <strong>추적 중</strong>
+          <span>의견 대기</span>
+        </div>
+      </div>
+      <div class="summary-pills">
+        <div><span>저장된 긍정 의견</span><strong>아직 없음</strong></div>
+        <div><span>추적 상태</span><strong>${asset.exchange || asset.type || "자산"} · 검색 가능</strong></div>
+      </div>
+      <div class="tabs-line">
+        <button class="active">긍정 의견 (0)</button>
+        <button>정보</button>
+      </div>
+      <section class="empty-state inline">
+        <h3>아직 검증해 저장한 의견은 없어요</h3>
+        <p>운영 데이터에 출처가 확인된 의견을 추가하면 이 종목의 랭킹과 차트 마커에 바로 반영됩니다.</p>
+      </section>
+      ${internalTimelineChart([], symbol)}
+    `;
+    qs("#asset-view .back-button").addEventListener("click", resetSearchView);
+    bindCallRows();
+    if (!options.skipChartFetch) fetchAssetChart(symbol, state.assetWindow);
+    return true;
+  }
   if (!calls.length) return false;
 
   const scoredCalls = calls.filter(isScoredCall);
@@ -1105,19 +1192,29 @@ function bindRankingTabs() {
 }
 
 function renderFeed() {
-  const calls = state.calls.filter(isScoredCall).sort((a, b) => {
+  const sortedCalls = state.calls.filter(isScoredCall).sort((a, b) => {
     const dateDiff = new Date(b.calledAt).getTime() - new Date(a.calledAt).getTime();
     if (dateDiff) return dateDiff;
     return (b.viralScore || 0) - (a.viralScore || 0);
   });
+  const personCounts = new Map();
+  const calls = [];
+  for (const call of sortedCalls) {
+    const personId = call.person?.id || call.personId || "unknown";
+    const count = personCounts.get(personId) || 0;
+    if (count >= 3 && calls.length < 18) continue;
+    personCounts.set(personId, count + 1);
+    calls.push(call);
+  }
   qs("#activity-feed").innerHTML = calls.map((call, index) => `
     <article class="activity-row">
       <button class="feed-person" data-person-id="${call.person?.id || ""}" type="button">
         ${avatar(call.person)}
       </button>
       <div class="activity-main">
-        <p><button class="feed-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>이 <b>${displayAsset(call.symbol)}</b>에 긍정 의견을 냈어요 <span>${callDateLabel(call.calledAt)} · ${holdingPeriod(call.calledAt)} 전</span></p>
+        <p><button class="feed-name" data-person-id="${call.person?.id || ""}" type="button">${call.person?.name}</button>이 <button class="feed-asset" data-symbol="${call.symbol}" type="button">${displayAsset(call.symbol)}</button>에 긍정 의견을 냈어요 <span>${callDateLabel(call.calledAt)} · ${holdingPeriod(call.calledAt)} 전</span></p>
         <button class="mini-position" data-call-id="${call.id}" type="button">
+          ${assetIcon(call.symbol, "feed-asset-icon")}
           <div>
             <strong>${assetName(call.symbol)}</strong>
             <span>${statusKo(call.status)}</span>
@@ -1140,6 +1237,13 @@ function renderFeed() {
       renderPerson(person);
     });
   });
+  qsa(".feed-asset").forEach((node) => {
+    node.addEventListener("click", (event) => {
+      event.stopPropagation();
+      switchTab("search");
+      renderAsset(node.dataset.symbol);
+    });
+  });
 }
 
 function renderFollowing() {
@@ -1150,7 +1254,7 @@ function renderFollowing() {
     list.innerHTML = `
       <section class="login-card">
         <div>
-          <span>RECEIPTS.TRADE</span>
+          <span>사라했제</span>
           <h2>내 계정으로 팔로우 관리</h2>
           <p>이름과 이메일만 넣으면 데모용 계정이 만들어지고, 팔로우와 알림 설정이 이 브라우저에 저장됩니다.</p>
         </div>
@@ -1270,7 +1374,7 @@ function showShare(call) {
   card.innerHTML = `
     <button class="close-share">×</button>
     <div class="receipt-card">
-      <p>RECEIPTS.TRADE</p>
+      <p>사라했제</p>
       <h2>${call.person?.name} · ${displayAsset(call.symbol)}</h2>
       <strong class="${pnlClass(call.returnPct)}">${pct(call.returnPct)}</strong>
       <span>당시 ${price(call.entryPrice, call.currency)} · 지금 ${price(call.currentPrice, call.currency)}</span>

@@ -384,7 +384,7 @@ async function fetchYahooChart(symbol, range = "all") {
     const upstream = await fetch(chartUrl, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 ReceiptsTrade/0.1"
+        "user-agent": "Mozilla/5.0 Sarahatje/0.1"
       }
     });
     if (!upstream.ok) throw new Error(`Yahoo chart failed: ${upstream.status}`);
@@ -425,7 +425,7 @@ async function tryDuckDuckGo(query) {
     const response = await fetch(url, {
       signal: controller.signal,
       headers: {
-        "user-agent": "Mozilla/5.0 ReceiptsHackathonBot/0.1"
+        "user-agent": "Mozilla/5.0 SarahatjeHackathonBot/0.1"
       }
     });
     if (!response.ok) return [];
@@ -893,7 +893,7 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, () => {
-  console.log(`Receipts running at http://localhost:${port}`);
+  console.log(`사라했제 running at http://localhost:${port}`);
 });
 
 

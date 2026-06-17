@@ -1,6 +1,6 @@
-# Receipts Hackathon Demo
+# 사라했제
 
-Receipts tracks public investment calls from influencers, celebrities, and strategists, then calculates simple return since the call.
+투자 인플루언서, 연예인, 방송인이 공개적으로 특정 종목이나 코인에 긍정 의견을 낸 시점부터 현재까지의 수익률을 추적하는 해커톤 데모입니다.
 
 ## Run
 
@@ -16,15 +16,10 @@ Open `http://localhost:5177`.
 npx vercel --prod --yes --token $env:VERCEL_TOKEN
 ```
 
-## Optional API Keys
-
-The demo works without keys by using seed data and public web search fallback. Later, add these to `.env` or your shell:
+## Environment
 
 ```powershell
-$env:X_BEARER_TOKEN="..."
-$env:TELEGRAM_API_ID="..."
-$env:TELEGRAM_API_HASH="..."
-$env:BRAVE_SEARCH_API_KEY="..."
+$env:DATABASE_URL="postgresql://..."
 ```
 
-The current build has clean extension points in `src/server.js` for X, Telegram, and paid search APIs.
+현재 검색은 라이브 크롤링이 아니라 검증해 저장한 데이터와 시드 데이터만 대상으로 합니다.

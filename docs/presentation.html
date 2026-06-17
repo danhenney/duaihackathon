@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>사라했제 | 발표자료</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+    <style>
+      :root {
+        --bg: #f7f3ea;
+        --paper: #fffdf8;
+        --ink: #11110f;
+        --muted: #706b61;
+        --line: #ded6c8;
+        --green: #2f8a4c;
+        --red: #c94c4c;
+        --blue: #365fe8;
+        --yellow: #f5c84b;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        color: var(--ink);
+        font-family: Pretendard, "Pretendard Variable", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          linear-gradient(var(--line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--line) 1px, transparent 1px),
+          radial-gradient(circle at 80% 16%, rgba(54, 95, 232, 0.12), transparent 30%),
+          radial-gradient(circle at 14% 78%, rgba(47, 138, 76, 0.13), transparent 30%),
+          var(--bg);
+        background-size: 52px 52px, 52px 52px, auto, auto, auto;
+      }
+
+      .deck {
+        width: min(1160px, calc(100vw - 56px));
+        min-height: min(700px, calc(100vh - 56px));
+        margin: 24px auto;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(17, 17, 15, 0.14);
+        border-radius: 30px;
+        background: rgba(255, 253, 248, 0.94);
+        box-shadow: 0 28px 90px rgba(17, 17, 15, 0.14);
+      }
+
+      .slide {
+        min-height: min(700px, calc(100vh - 56px));
+        display: none;
+        grid-template-rows: auto 1fr auto;
+        gap: 32px;
+        padding: 42px 56px 34px;
+      }
+
+      .slide.active {
+        display: grid;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 950;
+        font-size: 20px;
+      }
+
+      .logo {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--ink);
+      }
+
+      .page {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+      }
+
+      .content {
+        display: grid;
+        align-content: center;
+        gap: 28px;
+      }
+
+      .two {
+        grid-template-columns: 1.08fr 0.92fr;
+        align-items: center;
+        gap: 34px;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 0;
+        line-height: 0.98;
+      }
+
+      h1 {
+        max-width: 980px;
+        font-size: clamp(44px, 6.2vw, 82px);
+      }
+
+      h2 {
+        max-width: 920px;
+        font-size: clamp(34px, 4.6vw, 62px);
+      }
+
+      p {
+        margin: 0;
+        max-width: 880px;
+        color: var(--muted);
+        font-size: 21px;
+        font-weight: 650;
+        line-height: 1.55;
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-size: 19px;
+        font-weight: 950;
+      }
+
+      .panel {
+        border: 1px solid rgba(17, 17, 15, 0.13);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.66);
+        padding: 26px;
+      }
+
+      .quote {
+        font-size: clamp(32px, 4.1vw, 54px);
+        font-weight: 950;
+        line-height: 1.08;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .card {
+        min-height: 160px;
+        border: 1px solid rgba(17, 17, 15, 0.12);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.68);
+        padding: 24px;
+      }
+
+      .card span {
+        display: block;
+        color: var(--muted);
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .card strong {
+        display: block;
+        margin-top: 14px;
+        font-size: 32px;
+        line-height: 1;
+      }
+
+      .card p {
+        margin-top: 14px;
+        font-size: 17px;
+        line-height: 1.42;
+      }
+
+      .mock {
+        border: 10px solid var(--ink);
+        border-radius: 34px;
+        background: #fbf8f0;
+        padding: 20px;
+        box-shadow: 0 26px 70px rgba(17, 17, 15, 0.2);
+      }
+
+      .search {
+        height: 54px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        padding: 0 18px;
+        color: var(--muted);
+        font-weight: 850;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .avatar {
+        display: grid;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        color: #fff;
+        background: var(--ink);
+        font-weight: 950;
+      }
+
+      .row b {
+        display: block;
+        font-size: 17px;
+      }
+
+      .row small {
+        display: block;
+        color: var(--muted);
+        font-weight: 700;
+        margin-top: 4px;
+      }
+
+      .up { color: var(--green); }
+      .down { color: var(--red); }
+
+      .steps {
+        display: grid;
+        gap: 14px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 18px;
+        align-items: start;
+        padding: 20px;
+        border: 1px solid rgba(17, 17, 15, 0.12);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.65);
+      }
+
+      .step b {
+        color: var(--blue);
+        font-size: 18px;
+      }
+
+      .step p {
+        font-size: 19px;
+      }
+
+      .checklist {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .check {
+        padding: 22px;
+        border: 1px solid rgba(17, 17, 15, 0.12);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.65);
+      }
+
+      .check b {
+        display: block;
+        font-size: 21px;
+        margin-bottom: 10px;
+      }
+
+      .check p {
+        font-size: 17px;
+      }
+
+      footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 850;
+      }
+
+      .progress {
+        width: 260px;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(17, 17, 15, 0.12);
+      }
+
+      .bar {
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--ink);
+        transition: width 180ms ease;
+      }
+
+      button {
+        border: 1px solid rgba(17, 17, 15, 0.14);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+        font-weight: 900;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      @media (max-width: 860px) {
+        .deck {
+          width: 100vw;
+          min-height: 100vh;
+          margin: 0;
+          border-radius: 0;
+        }
+
+        .slide {
+          min-height: 100vh;
+          padding: 28px 24px 24px;
+        }
+
+        .two,
+        .cards,
+        .checklist {
+          grid-template-columns: 1fr;
+        }
+
+        .mock {
+          display: none;
+        }
+
+        p {
+          font-size: 19px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide active">
+        <header>
+          <div class="brand"><span class="logo">사</span>사라했제</div>
+          <div class="page">01 / 05</div>
+        </header>
+        <div class="content two">
+          <div>
+            <p class="eyebrow">왜 이걸 만들게 되었을까?</p>
+            <h1>인플루언서들은 진짜 투자를 잘할까?</h1>
+            <p>말은 빠르게 퍼지지만 성과는 잘 남지 않습니다. 그래서 공개 의견이 나온 시점부터 실제 수익률을 추적하는 서비스를 만들었습니다.</p>
+          </div>
+          <div class="panel quote">“내가 사라했제”<br><span class="down">그런데 진짜 올랐나?</span></div>
+        </div>
+        <footer><span>문제의식</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="brand"><span class="logo">사</span>사라했제</div>
+          <div class="page">02 / 05</div>
+        </header>
+        <div class="content two">
+          <div>
+            <p class="eyebrow">어떻게 만들었을까?</p>
+            <h2>코덱스로 기획부터 개발까지 빠르게 밀었습니다.</h2>
+            <p>초기 아이디어를 기능 구조로 정리하고, 화면 설계, 데이터 모델, 차트, 검색, DB 연결, Vercel 배포까지 한 흐름으로 구현했습니다.</p>
+          </div>
+          <div class="steps">
+            <div class="step"><b>기획</b><p>검색, 피드, 랭킹, 마이 정보 탭으로 UX를 정리했습니다.</p></div>
+            <div class="step"><b>개발</b><p>HTML, CSS, JS, Node API로 실제 동작하는 데모를 만들었습니다.</p></div>
+            <div class="step"><b>배포</b><p>GitHub와 Vercel을 연결해 웹에서 바로 볼 수 있게 만들었습니다.</p></div>
+          </div>
+        </div>
+        <footer><span>Codex-assisted build</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="brand"><span class="logo">사</span>사라했제</div>
+          <div class="page">03 / 05</div>
+        </header>
+        <div class="content">
+          <p class="eyebrow">뭘 중요하게 생각했을까?</p>
+          <h2>데이터 정합성과 실제 워킹을 제일 중요하게 봤습니다.</h2>
+          <div class="checklist">
+            <div class="check"><b>출처 있는 의견만</b><p>X, 유튜브, 기사 등 원문을 확인할 수 있는 공개 의견을 중심으로 넣었습니다.</p></div>
+            <div class="check"><b>뉴스 채널 제외</b><p>뉴스 계정은 인플루언서 랭킹 대상이 아니어서 제거했습니다.</p></div>
+            <div class="check"><b>종목 검색 가능</b><p>한국, 미국, 코인 주요 종목은 의견이 없어도 추적 유니버스로 검색됩니다.</p></div>
+            <div class="check"><b>차트와 수익률</b><p>종목 상세에서 가격 흐름과 의견 시점을 함께 볼 수 있게 만들었습니다.</p></div>
+          </div>
+        </div>
+        <footer><span>데모보다 중요한 것은 신뢰</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="brand"><span class="logo">사</span>사라했제</div>
+          <div class="page">04 / 05</div>
+        </header>
+        <div class="content two">
+          <div>
+            <p class="eyebrow">실제로 어떻게 보일까?</p>
+            <h2>누가 언제 사라했는지 한 화면에서 비교합니다.</h2>
+            <p>예를 들어 Michael Saylor는 BTC 긍정 의견이 한 건으로 끝나면 안 됩니다. 반복 발언과 매수 공개를 최신순으로 쌓아야 실제 인물 성과가 보입니다.</p>
+          </div>
+          <div class="mock">
+            <div class="search">⌕ Michael Saylor</div>
+            <div class="row"><div class="avatar">MS</div><div><b>BTC 디지털 자본</b><small>2026-06-16 · 원문 확인</small></div><strong class="down">-2.09%</strong></div>
+            <div class="row"><div class="avatar">MS</div><div><b>1,587 BTC 추가 매수</b><small>2026-06-15 · 원문 확인</small></div><strong class="up">+1.99%</strong></div>
+            <div class="row"><div class="avatar">전</div><div><b>SK하이닉스 장기 보유</b><small>2011-01-01 · 기사 확인</small></div><strong class="up">+11,810%</strong></div>
+          </div>
+        </div>
+        <footer><span>인물 상세 · 종목 상세 · 랭킹</span><div class="progress"><div class="bar"></div></div></footer>
+      </section>
+
+      <section class="slide">
+        <header>
+          <div class="brand"><span class="logo">사</span>사라했제</div>
+          <div class="page">05 / 05</div>
+        </header>
+        <div class="content">
+          <p class="eyebrow">앞으로는 뭘 할까?</p>
+          <h2>데이터베이스를 쌓고 실제 투자 판단에 쓰는 도구로 확장합니다.</h2>
+          <div class="cards">
+            <div class="card"><span>데이터 축적</span><strong>DB</strong><p>검증된 원문 URL과 의견 시점을 계속 저장합니다.</p></div>
+            <div class="card"><span>성과 분석</span><strong>랭킹</strong><p>인물별 적중률, 수익률, 손실 의견까지 비교합니다.</p></div>
+            <div class="card"><span>투자 활용</span><strong>시그널</strong><p>누가 먼저 봤는지 확인해 리서치 출발점으로 씁니다.</p></div>
+          </div>
+          <div class="panel quote">말의 값어치를<br><span class="up">수익률로 남기는 서비스</span></div>
+        </div>
+        <footer>
+          <span>사라했제</span>
+          <div class="controls"><button id="prev" type="button">이전</button><button id="next" type="button">다음</button></div>
+        </footer>
+      </section>
+    </main>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      const bars = [...document.querySelectorAll(".bar")];
+      let index = 0;
+
+      function show(next) {
+        index = Math.max(0, Math.min(slides.length - 1, next));
+        slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+        bars.forEach((bar) => { bar.style.width = `${((index + 1) / slides.length) * 100}%`; });
+      }
+
+      document.addEventListener("keydown", (event) => {
+        if (["ArrowRight", " ", "PageDown"].includes(event.key)) show(index + 1);
+        if (["ArrowLeft", "PageUp", "Backspace"].includes(event.key)) show(index - 1);
+      });
+
+      document.querySelector("#prev")?.addEventListener("click", () => show(index - 1));
+      document.querySelector("#next")?.addEventListener("click", () => show(index + 1));
+      show(0);
+    </script>
+  </body>
+</html>
